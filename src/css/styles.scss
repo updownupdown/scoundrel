@@ -1,40 +1,9 @@
+@use "./constants.scss";
 @use "./media.scss";
 @use "./inputs.scss";
 @use "./main.scss";
 @use "sass:color";
-// @forward "colors";
 @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap");
-
-$theme-colors: (
-  "black": #000000,
-  "white": #ffffff,
-  "K50": #fdfdfd,
-  "K100": #f8f8f8,
-  "K150": #eeeeee,
-  "K200": #e4e4e4,
-  "K300": #d2d2d2,
-  "K400": #bababa,
-  "K500": #a2a2a2,
-  "K600": #888888,
-  "K700": #666666,
-  "K800": #4d4d4f,
-  "K900": #282828,
-  "red": #c8102e,
-  "dark-red": #47151d,
-  "orange": #f16f23,
-  "dark-orange": #472b15,
-  "blue": #1fb7fd,
-  "dark-blue": #1075c8,
-  "purple": #9d22e4,
-  "dark-purple": #5f2261,
-  "green": #2bb363,
-  "dark-green": #1f502e,
-  "dull-green": #72a387,
-  "dark-dull-green": #45584b,
-  "accent": #d5b68a,
-  "accent-hover": #c79e65,
-  "accent-active": #b98843,
-);
 
 :root {
   // Generate hex/rgb CSS vars for default/rgba usage, respectively
@@ -43,7 +12,7 @@ $theme-colors: (
       color.channel($hex, "green", $space: rgb),
       color.channel($hex, "blue", $space: rgb);
   }
-  @each $name, $color in $theme-colors {
+  @each $name, $color in constants.$theme-colors {
     --#{$name}: #{$color};
     --#{$name}-rgb: #{hexToRGB($color)};
   }
@@ -74,7 +43,7 @@ body {
 
   background: var(--black);
 
-  color: var(--K100);
+  color: var(--white);
   line-height: 1;
 }
 
@@ -84,7 +53,7 @@ a,
 textarea,
 input {
   font-family: var(--font);
-  color: var(--K100);
+  color: var(--white);
 }
 
 h1,
@@ -98,6 +67,7 @@ p {
   font-size: 16px;
   font-weight: 600;
   line-height: 1.3;
+  color: var(--white);
 }
 
 p {
@@ -126,12 +96,13 @@ button {
   cursor: pointer;
   padding: 6px 8px;
 
-  border-radius: 4px;
+  border-radius: 6px;
   border: unset;
   background: unset;
 
-  font-size: 14px;
-  color: var(--K200);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--K100);
 
   &.plain-btn {
     border: 1px solid var(--K700);
@@ -139,7 +110,6 @@ button {
 
   &:disabled {
     cursor: not-allowed;
-    opacity: 0.4;
   }
 
   &:not(:disabled) {

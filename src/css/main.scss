@@ -1,20 +1,18 @@
-$cutoff: 400px;
+@use "./constants.scss";
 
 :root {
-  --bar-height: 1.6vw;
+  --bar-height: 16px;
   --card-aspect-ratio: calc(5 / 7);
   --max-width: 100vw;
-  --gap: 2vw;
-  --action-button-height: 4vw;
+  --gap: 4vw;
+  --action-button-height: 12vw;
   --action-button-gap: 0.5vw;
+  --card-width: calc((var(--max-width) - (var(--gap) * 5)) / 4);
 
-  --card-width: calc(var(--max-width) - (var(--gap) * 5) / 4);
-
-  @media (min-width: $cutoff) {
-    --bar-height: 16px;
-    --max-width: #{$cutoff};
+  @media (min-width: constants.$width-cutoff) {
+    --max-width: #{constants.$width-cutoff};
     --gap: 18px;
-    --action-button-height: 40px;
+    --action-button-height: 46px;
     --action-button-gap: 6px;
     --card-width: calc((var(--max-width) - (var(--gap) * 5)) / 4);
   }
@@ -52,7 +50,7 @@ $cutoff: 400px;
   gap: var(--gap);
 
   width: 100%;
-  max-width: $cutoff;
+  max-width: constants.$width-cutoff;
   margin: auto;
   padding: var(--gap);
 
@@ -159,6 +157,10 @@ $cutoff: 400px;
 
       .card {
         width: 100%;
+
+        &--empty {
+          background: var(--K800);
+        }
       }
     }
     &__separator {
@@ -200,6 +202,7 @@ $cutoff: 400px;
 
 // Actions
 .actions {
+  z-index: 10;
   align-items: center;
   gap: var(--gap);
   height: calc((var(--action-button-height) * 2) + var(--action-button-gap));
@@ -219,19 +222,21 @@ $cutoff: 400px;
       align-items: center;
       width: 100%;
       height: var(--action-button-height);
-      padding: 0 calc(var(--action-button-height) * 0.18) 0
+      padding: 0 calc(var(--action-button-height) * 0.1) 0
         calc(var(--action-button-height) * 0.1);
 
-      border: 1px solid transparent;
+      border-radius: calc(var(--action-button-height) / 2);
+      border: 2px solid transparent;
 
       > svg {
-        width: 24px;
-        height: 24px;
+        width: 28px;
+        height: 28px;
+        filter: drop-shadow(1px 2px 2px rgba(var(--black-rgb), 0.3));
       }
       span {
         position: relative;
         display: flex;
-        justify-content: flex-end;
+        justify-content: center;
         align-items: center;
         gap: calc(var(--action-button-height) * 0.06);
         flex: 1;
@@ -240,8 +245,8 @@ $cutoff: 400px;
         text-align: center;
 
         svg {
-          width: 12px;
-          height: 12px;
+          width: 14px;
+          height: 14px;
         }
       }
 
@@ -254,14 +259,15 @@ $cutoff: 400px;
             0 0 8px rgba(var(--#{$color}-rgb), 0.6);
 
           > svg {
-            fill: var(--dark-#{$color}-rgb);
+            fill: var(--white);
           }
 
           span {
-            color: var(--white);
+            opacity: 0.8;
+            color: var(--black);
 
             svg {
-              fill: var(--white);
+              fill: var(--black);
             }
           }
 
@@ -295,11 +301,12 @@ $cutoff: 400px;
 
       &:disabled {
         background: var(--K900);
-        border: unset;
+        border-color: transparent;
         box-shadow: unset;
 
         > svg {
           fill: var(--K400);
+          filter: unset;
         }
 
         span {
@@ -346,24 +353,25 @@ $cutoff: 400px;
   display: flex;
   align-items: center;
   width: 100%;
+  gap: calc(var(--gap));
 
   &__info {
     display: flex;
     flex: 1;
     align-items: center;
-    gap: calc(var(--gap) * 0.8);
+    gap: calc(var(--gap) * 0.6);
 
     &__icon {
       svg {
-        width: 1.6vw;
-        aspect-ratio: 1;
+        width: 32px;
+        height: 32px;
         fill: var(--white);
       }
     }
 
     &__text {
       flex: 1;
-      font-size: 1.6vw;
+      font-size: 24px;
 
       &__current {
         font-weight: 700;
@@ -378,7 +386,7 @@ $cutoff: 400px;
 
   &__bar {
     overflow: hidden;
-    width: 40%;
+    width: 50%;
     height: var(--bar-height);
 
     border-radius: calc(var(--bar-height) / 2);

@@ -28,6 +28,7 @@ import { Blood } from "./components/Blood";
 import Confetti from "react-confetti-boom";
 import { Modals, type ModalType } from "./context/ModalContext";
 import { Modal } from "./components/Modal";
+import { EquipIcon } from "./components/icons/Equip";
 
 function App() {
   const [playStateStorage, setPlayStateStorage] = useLocalStorage(
@@ -135,7 +136,14 @@ function App() {
         // Populate room
         const lastRoomCard = getValidRoomCards(playState.roomCards);
         const neededCards = lastRoomCard.length ? 3 : 4;
-        const newRoomCards = [...playState.drawDeck.slice(0, neededCards)];
+        const newRoomCards: (string | undefined)[] = [
+          ...playState.drawDeck.slice(0, neededCards),
+        ];
+
+        // Pad the card set to preserve last card position in last room
+        while (newRoomCards.length < neededCards) {
+          newRoomCards.push(undefined);
+        }
 
         // Keep last room card in the same position
         if (lastRoomCard.length) {
@@ -383,7 +391,7 @@ function App() {
                         className="action-btn action-btn--equip"
                         onClick={() => doEquip(card)}
                       >
-                        <SwordIcon />
+                        <EquipIcon />
                       </button>
                     )}
 
@@ -416,7 +424,7 @@ function App() {
                                 <HeartIcon />
                               </>
                             ) : (
-                              "N/A"
+                              "--"
                             )}
                           </span>
                         </button>
@@ -433,13 +441,14 @@ function App() {
       </div>
 
       <Modal
+        title="You won!"
         isOpen={openModal === Modals.Won}
         onClose={() => {
           setOpenModal(undefined);
         }}
       >
-        <span>You won!</span>
         <button
+          className="plain-btn"
           onClick={() => {
             gameReset();
             setOpenModal(undefined);
@@ -450,13 +459,14 @@ function App() {
       </Modal>
 
       <Modal
+        title="You died!"
         isOpen={openModal === Modals.Lost}
         onClose={() => {
           setOpenModal(undefined);
         }}
       >
-        <span>You died!</span>
         <button
+          className="plain-btn"
           onClick={() => {
             gameReset();
             setOpenModal(undefined);

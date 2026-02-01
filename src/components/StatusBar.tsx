@@ -40,15 +40,15 @@ export const StatusBar = ({
         </span>
 
         {children}
+      </div>
 
-        <div className="status-bar__bar">
-          {progress !== undefined && (
-            <div
-              className="status-bar__bar__progress"
-              style={{ width: `${progress * 100}%` }}
-            />
-          )}
-        </div>
+      <div className="status-bar__bar">
+        {progress !== undefined && (
+          <div
+            className="status-bar__bar__progress"
+            style={{ width: `${progress * 100}%` }}
+          />
+        )}
       </div>
     </div>
   );
