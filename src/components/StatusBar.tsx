@@ -26,21 +26,7 @@ export const StatusBar = ({
         value === undefined && "status-bar--na",
       )}
     >
-      <div className="status-bar__info">
-        <div className="status-bar__info__icon">{icon}</div>
-
-        <span className="status-bar__info__text">
-          <span className="status-bar__info__text__current">
-            {value === undefined ? "--" : value}
-          </span>
-          <span className="status-bar__info__text__total">
-            {" "}
-            / {total ?? "--"}
-          </span>
-        </span>
-
-        {children}
-      </div>
+      <div className="status-bar__icon">{icon}</div>
 
       <div className="status-bar__bar">
         {progress !== undefined && (
@@ -50,6 +36,15 @@ export const StatusBar = ({
           />
         )}
       </div>
+
+      <span className="status-bar__text">
+        <span className="status-bar__text__current">
+          {value === undefined ? "--" : value}
+        </span>
+        <span className="status-bar__text__total"> / {total ?? "--"}</span>
+      </span>
+
+      {children}
     </div>
   );
 };

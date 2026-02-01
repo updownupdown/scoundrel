@@ -8,7 +8,6 @@ import {
   roomsTotal,
 } from "./utils/constants";
 import { arrayShuffle, getValidRoomCards, parseCard } from "./utils/utils";
-import { Card } from "./utils/useCardSvg";
 import {
   CardTypes,
   defaultPlayState,
@@ -29,6 +28,8 @@ import Confetti from "react-confetti-boom";
 import { Modals, type ModalType } from "./context/ModalContext";
 import { Modal } from "./components/Modal";
 import { EquipIcon } from "./components/icons/Equip";
+import { Card } from "./components/Card";
+import { MenuModal } from "./components/MenuModal";
 
 function App() {
   const [playStateStorage, setPlayStateStorage] = useLocalStorage(
@@ -475,6 +476,15 @@ function App() {
           Try again
         </button>
       </Modal>
+
+      {openModal === Modals.Menu && (
+        <MenuModal
+          isOpen={true}
+          onClose={() => {
+            setOpenModal(undefined);
+          }}
+        />
+      )}
     </div>
   );
 }

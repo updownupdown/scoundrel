@@ -4,7 +4,11 @@ interface CardProps {
 
 export const Card = ({ card }: CardProps) => {
   if (card) {
-    return <img className="card" src={`./cards/${card}.svg`} />;
+    return (
+      <div className="card">
+        <img src={`./cards/${card}.svg`} />
+      </div>
+    );
   } else {
     return <div className="card card--empty" />;
   }
