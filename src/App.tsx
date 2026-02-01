@@ -17,15 +17,16 @@ import { SwordIcon } from "./assets/icons/Sword";
 import { FistIcon } from "./assets/icons/Fist";
 import { HeartOutlineIcon } from "./assets/icons/HeartOutline";
 import { StatusBar } from "./components/StatusBar";
+import clsx from "clsx";
 
 type PlayState = {
   drawDeck: string[];
   discardDeck: string[];
-  currentRoom: number;
+  currentRoom?: number;
   roomCards: (string | undefined)[];
   ranRooms: number[];
   health: number;
-  weapon: string | undefined;
+  weapon?: string;
   weaponCards: string[];
 };
 
@@ -33,7 +34,7 @@ function App() {
   const defaultPlayState: PlayState = {
     drawDeck: [],
     discardDeck: [],
-    currentRoom: 0,
+    currentRoom: undefined,
     roomCards: [],
     ranRooms: [],
     weapon: undefined,
@@ -47,6 +48,7 @@ function App() {
   );
   const [gameStarted, setGameStarted] = useState(false);
   const [playState, setPlayState] = useState(playStateStorage);
+  const [usedPotionInRoom, setUsedPotionInRoom] = useState(false);
 
   // Reset game
   function resetGame() {
@@ -94,27 +96,41 @@ function App() {
 
   // Populate room
   function populateRoom() {
-    const roomCards = playState.drawDeck.slice(0, 4);
+    const lastRoomCard = getValidRoomCards(playState.roomCards);
+    const neededCards = lastRoomCard.length ? 3 : 4;
+    const newRoomCards = [...playState.drawDeck.slice(0, neededCards)];
 
+    // Keep last room card in the same position
+    if (lastRoomCard.length) {
+      const indexOfLastRoomCard = playState.roomCards.indexOf(lastRoomCard[0]);
+      newRoomCards.splice(indexOfLastRoomCard, 0, lastRoomCard[0]);
+    }
+
+    setUsedPotionInRoom(false);
     setPlayState((prev) => ({
       ...prev,
-      drawDeck: playState.drawDeck.slice(4),
-      roomCards,
-      currentRoom: playState.currentRoom + 1,
+      drawDeck: [...playState.drawDeck.slice(neededCards)],
+      roomCards: newRoomCards,
+      currentRoom: (playState.currentRoom ?? 0) + 1,
     }));
   }
 
   useEffect(() => {
     // Trigger end
     if (playState.health < 0) {
-      triggerEnd();
+      triggerLose();
       setPlayStateStorage(playState);
       return;
     }
 
-    // Populate room, only consider defined roomCards
-    if (gameStarted && getValidRoomCards(playState.roomCards).length <= 1) {
-      populateRoom();
+    if (gameStarted) {
+      const validRoomCards = getValidRoomCards(playState.roomCards);
+
+      if (playState.drawDeck.length === 0) {
+        triggerWin();
+      } else if (validRoomCards.length <= 1) {
+        populateRoom();
+      }
     }
 
     setPlayStateStorage(playState);
@@ -142,6 +158,7 @@ function App() {
     let health = playState.health + cardValue;
     if (health > maxHealth) health = maxHealth;
 
+    setUsedPotionInRoom(true);
     setPlayState((prev) => ({
       ...prev,
       health,
@@ -211,12 +228,16 @@ function App() {
           : []),
       ],
       roomCards: [],
-      ranRooms: [...playState.ranRooms, playState.currentRoom],
+      ranRooms: [...playState.ranRooms, playState.currentRoom ?? 1],
     }));
   }
 
-  function triggerEnd() {
+  function triggerLose() {
     console.log("You died!");
+  }
+
+  function triggerWin() {
+    console.log("You won!");
   }
 
   function getDamageValue(card: string) {
@@ -232,7 +253,8 @@ function App() {
     ? playState.ranRooms.slice(-1)[0]
     : undefined;
   const canRun =
-    lastRoomRan === undefined || playState.currentRoom !== lastRoomRan + 1;
+    playState.roomCards.length === 4 &&
+    (lastRoomRan === undefined || playState.currentRoom !== lastRoomRan + 1);
 
   return (
     <div className="main">
@@ -259,9 +281,9 @@ function App() {
         <StatusBar
           type="room"
           icon={<DoorIcon />}
-          value={playState.currentRoom}
+          value={playState.currentRoom ?? 1}
           total={roomsTotal + (playState.ranRooms.length ?? 0)}
-          progress={playState.currentRoom / roomsTotal}
+          progress={(playState.currentRoom ?? 1) / roomsTotal}
         >
           <button
             className="run-btn"
@@ -282,15 +304,9 @@ function App() {
 
       <div className="status">
         <div className="draw-deck">
-          <div className="card-deck">
-            <span>
-              Draw:
-              <br />
-              <b>{playState.drawDeck.length}</b>
-            </span>
+          <span>{playState.drawDeck.length}</span>
 
-            <Card card="back" />
-          </div>
+          <Card card="back" />
         </div>
 
         <div className="weapons">
@@ -324,12 +340,15 @@ function App() {
                 <>
                   {cardType === CardTypes.Potion && (
                     <button
-                      className="action-btn action-btn--heal"
+                      className={clsx(
+                        "action-btn action-btn--heal",
+                        usedPotionInRoom && "action-btn--heal-no-effect",
+                      )}
                       onClick={() => doHeal(card)}
                     >
                       <PotionIcon />
                       <span>
-                        +{cardValue} <HeartIcon />
+                        +{usedPotionInRoom ? 0 : cardValue} <HeartIcon />
                       </span>
                     </button>
                   )}
