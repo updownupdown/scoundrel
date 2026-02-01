@@ -38,6 +38,7 @@ function App() {
   const [gameState, setGameState] = useState<GameState | undefined>(undefined);
   const [usedPotionInRoom, setUsedPotionInRoom] = useState(false);
   const [openModal, setOpenModal] = useState<ModalType | undefined>(undefined);
+  const [isRunning, setIsRunning] = useState(false);
 
   // ===================================
   // Info
@@ -82,13 +83,16 @@ function App() {
     return damage;
   }
 
-  const lastRoomRan = playState.ranRooms.length
+  const lastRoomNumberRanFrom = playState.ranRooms.length
     ? playState.ranRooms.slice(-1)[0]
     : undefined;
+  const ranLastRoom =
+    lastRoomNumberRanFrom !== undefined &&
+    playState.currentRoom === lastRoomNumberRanFrom;
   const canRun =
     gameState === GameStates.InProgress &&
     getValidRoomCards(playState.roomCards).length === 4 &&
-    (lastRoomRan === undefined || playState.currentRoom !== lastRoomRan + 1);
+    !ranLastRoom;
 
   // ===================================
   // Start/stop win/lose logic
@@ -141,13 +145,16 @@ function App() {
           newRoomCards.splice(indexOfLastRoomCard, 0, lastRoomCard[0]);
         }
 
-        setUsedPotionInRoom(false);
         setPlayState((prev) => ({
           ...prev,
           drawDeck: [...playState.drawDeck.slice(neededCards)],
           roomCards: newRoomCards,
-          currentRoom: (playState.currentRoom ?? 0) + 1,
+          currentRoom: isRunning
+            ? playState.currentRoom
+            : (playState.currentRoom ?? 0) + 1,
         }));
+        setUsedPotionInRoom(false);
+        setIsRunning(false);
       }
     }
 
@@ -239,6 +246,7 @@ function App() {
   }
 
   function runFromRoom() {
+    setIsRunning(true);
     setPlayState((prev) => ({
       ...prev,
       drawDeck: [
@@ -298,7 +306,7 @@ function App() {
             type="room"
             icon={<DoorIcon />}
             value={playState.currentRoom ?? 1}
-            total={roomsTotal + (playState.ranRooms.length ?? 0)}
+            total={roomsTotal}
             progress={(playState.currentRoom ?? 1) / roomsTotal}
           >
             <button

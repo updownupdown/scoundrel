@@ -1,4 +1,4 @@
-export const maxHealth = 200;
+export const maxHealth = 20;
 export const maxWeaponStrength = 14;
 
 export const allCards = [
