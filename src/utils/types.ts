@@ -1,3 +1,36 @@
+import { maxHealth } from "./constants";
+
+export type PlayState = {
+  drawDeck: string[];
+  discardDeck: string[];
+  currentRoom?: number;
+  roomCards: (string | undefined)[];
+  ranRooms: number[];
+  health: number;
+  weapon?: string;
+  weaponCards: string[];
+};
+
+export const GameStates = {
+  Stopped: "Stopped",
+  InProgress: "In Progress",
+  Lost: "Lost",
+  Won: "Won",
+} as const;
+
+export type GameState = (typeof GameStates)[keyof typeof GameStates];
+
+export const defaultPlayState: PlayState = {
+  drawDeck: [],
+  discardDeck: [],
+  currentRoom: undefined,
+  roomCards: [],
+  ranRooms: [],
+  weapon: undefined,
+  weaponCards: [],
+  health: maxHealth,
+};
+
 export const CardTypes = {
   Potion: "Potion",
   Weapon: "Weapon",

@@ -22,6 +22,27 @@ $cutoff: 400px;
   --card-height: calc(var(--card-width) / var(--card-aspect-ratio));
 }
 
+// Wrap
+.wrap {
+  transition: 1s ease all;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+
+  // Game states
+  &.game-state--lost {
+    background: rgba(var(--red-rgb), 0.2);
+    box-shadow: inset 0 0 12px rgba(var(--red-rgb), 0.8);
+  }
+
+  .confetti {
+    pointer-events: none;
+    z-index: 100;
+  }
+}
+
 // Main
 .main {
   overflow-y: auto;
@@ -187,7 +208,7 @@ $cutoff: 400px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    width: 100%;
+    width: var(--card-width);
     height: 100%;
     gap: 6px;
 
@@ -356,6 +377,7 @@ $cutoff: 400px;
   }
 
   &__bar {
+    overflow: hidden;
     width: 40%;
     height: var(--bar-height);
 

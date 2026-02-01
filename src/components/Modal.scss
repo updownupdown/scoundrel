@@ -1,0 +1,85 @@
+.modal {
+  overflow: hidden;
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  margin-right: -50%;
+  transform: translate(-50%, -50%);
+
+  display: flex;
+  flex-direction: column;
+
+  width: 400px;
+  max-width: calc(100vw - 40px);
+
+  border: unset;
+  border-radius: 8px;
+  background: var(--white);
+  box-shadow:
+    1px 2px 12px rgba(var(--K800-rgb), 0.3),
+    2px 4px 24px rgba(var(--K800-rgb), 0.3);
+
+  color: var(--K800);
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    background: var(--K800);
+    height: 60px;
+    padding: 0 12px 0 20px;
+    flex-shrink: 0;
+
+    h2 {
+      font-size: 20px;
+      color: var(--white);
+      flex: 1;
+      font-weight: 700;
+    }
+
+    .dialog-close-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+
+      svg {
+        width: 32px;
+        height: 32px;
+        fill: var(--K400);
+      }
+
+      &:hover svg {
+        fill: var(--incorrect);
+      }
+    }
+  }
+
+  .modal-content {
+    overflow-y: auto;
+  }
+
+  .modal-message {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    padding: 20px;
+
+    border-radius: 12px;
+    background: var(--K100);
+
+    font-size: 16px;
+    color: var(--K700);
+    font-weight: 700;
+    line-height: 1.3;
+    text-align: center;
+  }
+
+  ::backdrop {
+    background: rgba(var(--K800-rgb), 0.8);
+  }
+
+  &--no-backdrop::backdrop {
+    display: none;
+  }
+}

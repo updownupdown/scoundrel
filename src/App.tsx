@@ -9,73 +9,52 @@ import {
 } from "./utils/constants";
 import { arrayShuffle, getValidRoomCards, parseCard } from "./utils/utils";
 import { Card } from "./utils/useCardSvg";
-import { CardTypes } from "./utils/types";
-import { DoorIcon } from "./assets/icons/Door";
-import { HeartIcon } from "./assets/icons/Heart";
-import { PotionIcon } from "./assets/icons/Potion";
-import { SwordIcon } from "./assets/icons/Sword";
-import { FistIcon } from "./assets/icons/Fist";
-import { HeartOutlineIcon } from "./assets/icons/HeartOutline";
+import {
+  CardTypes,
+  defaultPlayState,
+  GameStates,
+  type GameState,
+} from "./utils/types";
+import { DoorIcon } from "./components/icons/Door";
+import { HeartIcon } from "./components/icons/Heart";
+import { PotionIcon } from "./components/icons/Potion";
+import { SwordIcon } from "./components/icons/Sword";
+import { FistIcon } from "./components/icons/Fist";
+import { HeartOutlineIcon } from "./components/icons/HeartOutline";
 import { StatusBar } from "./components/StatusBar";
 import clsx from "clsx";
-
-type PlayState = {
-  drawDeck: string[];
-  discardDeck: string[];
-  currentRoom?: number;
-  roomCards: (string | undefined)[];
-  ranRooms: number[];
-  health: number;
-  weapon?: string;
-  weaponCards: string[];
-};
+import { ImagePreloader } from "./utils/ImagePreloader";
+import { Blood } from "./components/Blood";
+import Confetti from "react-confetti-boom";
+import { Modals, type ModalType } from "./context/ModalContext";
+import { Modal } from "./components/Modal";
 
 function App() {
-  const defaultPlayState: PlayState = {
-    drawDeck: [],
-    discardDeck: [],
-    currentRoom: undefined,
-    roomCards: [],
-    ranRooms: [],
-    weapon: undefined,
-    weaponCards: [],
-    health: 20,
-  };
-
   const [playStateStorage, setPlayStateStorage] = useLocalStorage(
     "playState",
     defaultPlayState,
   );
-  const [gameStarted, setGameStarted] = useState(false);
   const [playState, setPlayState] = useState(playStateStorage);
+  const [gameState, setGameState] = useState<GameState | undefined>(undefined);
   const [usedPotionInRoom, setUsedPotionInRoom] = useState(false);
+  const [openModal, setOpenModal] = useState<ModalType | undefined>(undefined);
 
-  // Reset game
-  function resetGame() {
-    setGameStarted(false);
-    setPlayState({
-      ...defaultPlayState,
-      drawDeck: arrayShuffle(allCards),
-    });
-    setGameStarted(true);
-  }
-
-  function getWeaponCardsLowest() {
+  // ===================================
+  // Info
+  // ===================================
+  const lowestWeaponCard = () => {
     const lastWeaponCard =
       playState.weaponCards?.[playState.weaponCards.length - 1];
-
     if (!lastWeaponCard) return undefined;
-
     const { cardValue } = parseCard(lastWeaponCard);
-
     return cardValue;
-  }
+  };
 
   function canUseWeapon(cardValue: number) {
-    const lowestWeaponCard = getWeaponCardsLowest();
+    const lowestWeapon = lowestWeaponCard();
     return (
       playState.weapon &&
-      (lowestWeaponCard === undefined || cardValue < lowestWeaponCard)
+      (lowestWeapon === undefined || cardValue < lowestWeapon)
     );
   }
 
@@ -88,55 +67,96 @@ function App() {
   const weaponStrength = () => {
     if (!playState.weapon) return undefined;
 
-    const lowest = getWeaponCardsLowest();
+    const lowest = lowestWeaponCard();
     if (!lowest) return 1;
 
     return (lowest - 1) / maxWeaponStrength;
   };
 
-  // Populate room
-  function populateRoom() {
-    const lastRoomCard = getValidRoomCards(playState.roomCards);
-    const neededCards = lastRoomCard.length ? 3 : 4;
-    const newRoomCards = [...playState.drawDeck.slice(0, neededCards)];
+  function getDamageValue(card: string) {
+    const { cardValue: monsterValue } = parseCard(card);
+    const { cardValue: weaponValue } = parseCard(playState.weapon);
+    let damage = monsterValue - weaponValue;
+    if (damage < 0) damage = 0;
 
-    // Keep last room card in the same position
-    if (lastRoomCard.length) {
-      const indexOfLastRoomCard = playState.roomCards.indexOf(lastRoomCard[0]);
-      newRoomCards.splice(indexOfLastRoomCard, 0, lastRoomCard[0]);
-    }
+    return damage;
+  }
 
-    setUsedPotionInRoom(false);
-    setPlayState((prev) => ({
-      ...prev,
-      drawDeck: [...playState.drawDeck.slice(neededCards)],
-      roomCards: newRoomCards,
-      currentRoom: (playState.currentRoom ?? 0) + 1,
-    }));
+  const lastRoomRan = playState.ranRooms.length
+    ? playState.ranRooms.slice(-1)[0]
+    : undefined;
+  const canRun =
+    gameState === GameStates.InProgress &&
+    getValidRoomCards(playState.roomCards).length === 4 &&
+    (lastRoomRan === undefined || playState.currentRoom !== lastRoomRan + 1);
+
+  // ===================================
+  // Start/stop win/lose logic
+  // ===================================
+  function gameReset() {
+    setPlayState({
+      ...defaultPlayState,
+      drawDeck: arrayShuffle(allCards),
+    });
+    setGameState(GameStates.InProgress);
+  }
+
+  function gameLose() {
+    setGameState(GameStates.Lost);
+    setOpenModal(Modals.Lost);
+  }
+
+  function gameWin() {
+    setGameState(GameStates.Won);
+    setOpenModal(Modals.Won);
   }
 
   useEffect(() => {
-    // Trigger end
-    if (playState.health < 0) {
-      triggerLose();
-      setPlayStateStorage(playState);
-      return;
-    }
-
-    if (gameStarted) {
+    if (gameState === undefined) {
+      // Initial game
+      gameReset();
+    } else if (playState.health <= 0) {
+      // Trigger lost
+      gameLose();
+    } else if (gameState === GameStates.InProgress) {
       const validRoomCards = getValidRoomCards(playState.roomCards);
 
-      if (playState.drawDeck.length === 0) {
-        triggerWin();
-      } else if (validRoomCards.length <= 1) {
-        populateRoom();
+      if (playState.drawDeck.length === 0 && validRoomCards.length === 0) {
+        // Trigger win
+        gameWin();
+      } else if (
+        playState.drawDeck.length !== 0 &&
+        validRoomCards.length <= 1
+      ) {
+        // Populate room
+        const lastRoomCard = getValidRoomCards(playState.roomCards);
+        const neededCards = lastRoomCard.length ? 3 : 4;
+        const newRoomCards = [...playState.drawDeck.slice(0, neededCards)];
+
+        // Keep last room card in the same position
+        if (lastRoomCard.length) {
+          const indexOfLastRoomCard = playState.roomCards.indexOf(
+            lastRoomCard[0],
+          );
+          newRoomCards.splice(indexOfLastRoomCard, 0, lastRoomCard[0]);
+        }
+
+        setUsedPotionInRoom(false);
+        setPlayState((prev) => ({
+          ...prev,
+          drawDeck: [...playState.drawDeck.slice(neededCards)],
+          roomCards: newRoomCards,
+          currentRoom: (playState.currentRoom ?? 0) + 1,
+        }));
       }
     }
 
     setPlayStateStorage(playState);
   }, [playState]);
 
+  // ===================================
   // Card actions
+  // ===================================
   function discardFromRoom(card: string) {
     setPlayState((prev) => ({
       ...prev,
@@ -232,175 +252,211 @@ function App() {
     }));
   }
 
-  function triggerLose() {
-    console.log("You died!");
-  }
-
-  function triggerWin() {
-    console.log("You won!");
-  }
-
-  function getDamageValue(card: string) {
-    const { cardValue: monsterValue } = parseCard(card);
-    const { cardValue: weaponValue } = parseCard(playState.weapon);
-    let damage = monsterValue - weaponValue;
-    if (damage < 0) damage = 0;
-
-    return damage;
-  }
-
-  const lastRoomRan = playState.ranRooms.length
-    ? playState.ranRooms.slice(-1)[0]
-    : undefined;
-  const canRun =
-    playState.roomCards.length === 4 &&
-    (lastRoomRan === undefined || playState.currentRoom !== lastRoomRan + 1);
-
   return (
-    <div className="main">
-      <div className="main__header">
-        <button className="plain-btn" type="button">
-          Menu
-        </button>
+    <div className={`wrap game-state--${gameState?.toLowerCase() ?? "na"}`}>
+      {gameState === GameStates.Lost && <Blood />}
+      {gameState === GameStates.Won && (
+        <div className="confetti">
+          <Confetti
+            mode="fall"
+            particleCount={80}
+            colors={["#c8102e", "#f16f23", "#9d22e4", "#2bb363", "#1fb7fd"]}
+          />
+        </div>
+      )}
 
-        <h2>Scoundrel</h2>
+      <div className="main">
+        <ImagePreloader />
 
-        <button className="plain-btn" type="button" onClick={resetGame}>
-          Reset game
-        </button>
-      </div>
-
-      <div className="statuses">
-        <StatusBar
-          type="health"
-          icon={<HeartOutlineIcon />}
-          value={playState.health}
-          total={maxHealth}
-          progress={playState.health / maxHealth}
-        />
-        <StatusBar
-          type="room"
-          icon={<DoorIcon />}
-          value={playState.currentRoom ?? 1}
-          total={roomsTotal + (playState.ranRooms.length ?? 0)}
-          progress={(playState.currentRoom ?? 1) / roomsTotal}
-        >
+        <div className="main__header">
           <button
-            className="run-btn"
-            onClick={() => runFromRoom()}
-            disabled={!canRun}
+            className="plain-btn"
+            type="button"
+            onClick={() => {
+              setOpenModal(Modals.Menu);
+            }}
           >
-            Run
+            Menu
           </button>
-        </StatusBar>
-        <StatusBar
-          type="weapon"
-          icon={<SwordIcon />}
-          value={weaponValue()}
-          total={maxWeaponStrength}
-          progress={weaponStrength()}
-        />
-      </div>
 
-      <div className="status">
-        <div className="draw-deck">
-          <span>{playState.drawDeck.length}</span>
+          <h2>Scoundrel</h2>
 
-          <Card card="back" />
+          <button className="plain-btn" type="button" onClick={gameReset}>
+            Reset game
+          </button>
         </div>
 
-        <div className="weapons">
-          <div className="weapons__weapon">
-            <Card card={playState.weapon} />
+        <div className="statuses">
+          <StatusBar
+            type="health"
+            icon={<HeartOutlineIcon />}
+            value={playState.health}
+            total={maxHealth}
+            progress={playState.health / maxHealth}
+          />
+          <StatusBar
+            type="room"
+            icon={<DoorIcon />}
+            value={playState.currentRoom ?? 1}
+            total={roomsTotal + (playState.ranRooms.length ?? 0)}
+            progress={(playState.currentRoom ?? 1) / roomsTotal}
+          >
+            <button
+              className="run-btn"
+              onClick={() => runFromRoom()}
+              disabled={!canRun}
+            >
+              Run
+            </button>
+          </StatusBar>
+          <StatusBar
+            type="weapon"
+            icon={<SwordIcon />}
+            value={weaponValue()}
+            total={maxWeaponStrength}
+            progress={weaponStrength()}
+          />
+        </div>
+
+        <div className="status">
+          <div className="draw-deck">
+            <span>{playState.drawDeck.length}</span>
+
+            <Card card="back" />
           </div>
 
-          <div className="weapons__separator" />
+          <div className="weapons">
+            <div className="weapons__weapon">
+              <Card card={playState.weapon} />
+            </div>
 
-          <div className="weapons__cards">
-            {playState.weaponCards.map((card, index) => {
-              return <Card key={"weapon-card" + index} card={card} />;
-            })}
+            <div className="weapons__separator" />
+
+            <div className="weapons__cards">
+              {playState.weaponCards.map((card, index) => {
+                return <Card key={"weapon-card" + index} card={card} />;
+              })}
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="room-cards">
-        {playState.roomCards.map((card, index) => {
-          return <Card key={"card" + index} card={card} />;
-        })}
-      </div>
+        <div className="room-cards">
+          {playState.roomCards.map((card, index) => {
+            return <Card key={"card" + index} card={card} />;
+          })}
+        </div>
 
-      <div className="actions">
-        {playState.roomCards.map((card, index) => {
-          const { cardType, cardValue } = parseCard(card);
+        <div className="actions">
+          {playState.roomCards.map((card, index) => {
+            const { cardType, cardValue } = parseCard(card);
 
-          return (
-            <div key={"action" + index} className="actions__buttons">
-              {card ? (
-                <>
-                  {cardType === CardTypes.Potion && (
-                    <button
-                      className={clsx(
-                        "action-btn action-btn--heal",
-                        usedPotionInRoom && "action-btn--heal-no-effect",
-                      )}
-                      onClick={() => doHeal(card)}
-                    >
-                      <PotionIcon />
-                      <span>
-                        +{usedPotionInRoom ? 0 : cardValue} <HeartIcon />
-                      </span>
-                    </button>
-                  )}
-
-                  {cardType === CardTypes.Weapon && (
-                    <button
-                      className="action-btn action-btn--equip"
-                      onClick={() => doEquip(card)}
-                    >
-                      <SwordIcon />
-                    </button>
-                  )}
-
-                  {cardType === CardTypes.Monster && (
-                    <>
+            return (
+              <div key={"action" + index} className="actions__buttons">
+                {card ? (
+                  <>
+                    {cardType === CardTypes.Potion && (
                       <button
-                        className="action-btn action-btn--fight action-btn--fight-fist"
-                        onClick={() => doFightBarefist(card)}
+                        className={clsx(
+                          "action-btn action-btn--heal",
+                          usedPotionInRoom && "action-btn--heal-no-effect",
+                        )}
+                        onClick={() => doHeal(card)}
+                        disabled={gameState !== GameStates.InProgress}
                       >
-                        <FistIcon />
+                        <PotionIcon />
                         <span>
-                          -{cardValue} <HeartIcon />
+                          +{usedPotionInRoom ? 0 : cardValue} <HeartIcon />
                         </span>
                       </button>
+                    )}
+
+                    {cardType === CardTypes.Weapon && (
                       <button
-                        className="action-btn action-btn--fight action-btn--fight-weapon"
-                        onClick={() => doFightWeapon(card)}
-                        disabled={!canUseWeapon(cardValue)}
+                        className="action-btn action-btn--equip"
+                        onClick={() => doEquip(card)}
                       >
                         <SwordIcon />
-
-                        <span>
-                          {canUseWeapon(cardValue) ? (
-                            <>
-                              {`-${getDamageValue(card)}`}
-                              <HeartIcon />
-                            </>
-                          ) : (
-                            "N/A"
-                          )}
-                        </span>
                       </button>
-                    </>
-                  )}
-                </>
-              ) : (
-                <div />
-              )}
-            </div>
-          );
-        })}
+                    )}
+
+                    {cardType === CardTypes.Monster && (
+                      <>
+                        <button
+                          className="action-btn action-btn--fight action-btn--fight-fist"
+                          onClick={() => doFightBarefist(card)}
+                          disabled={gameState !== GameStates.InProgress}
+                        >
+                          <FistIcon />
+                          <span>
+                            -{cardValue} <HeartIcon />
+                          </span>
+                        </button>
+                        <button
+                          className="action-btn action-btn--fight action-btn--fight-weapon"
+                          onClick={() => doFightWeapon(card)}
+                          disabled={
+                            !canUseWeapon(cardValue) ||
+                            gameState !== GameStates.InProgress
+                          }
+                        >
+                          <SwordIcon />
+
+                          <span>
+                            {canUseWeapon(cardValue) ? (
+                              <>
+                                {`-${getDamageValue(card)}`}
+                                <HeartIcon />
+                              </>
+                            ) : (
+                              "N/A"
+                            )}
+                          </span>
+                        </button>
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <div />
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
+
+      <Modal
+        isOpen={openModal === Modals.Won}
+        onClose={() => {
+          setOpenModal(undefined);
+        }}
+      >
+        <span>You won!</span>
+        <button
+          onClick={() => {
+            gameReset();
+            setOpenModal(undefined);
+          }}
+        >
+          Play again
+        </button>
+      </Modal>
+
+      <Modal
+        isOpen={openModal === Modals.Lost}
+        onClose={() => {
+          setOpenModal(undefined);
+        }}
+      >
+        <span>You died!</span>
+        <button
+          onClick={() => {
+            gameReset();
+            setOpenModal(undefined);
+          }}
+        >
+          Try again
+        </button>
+      </Modal>
     </div>
   );
 }

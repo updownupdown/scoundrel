@@ -1,4 +1,4 @@
-export const maxHealth = 20;
+export const maxHealth = 200;
 export const maxWeaponStrength = 14;
 
 export const allCards = [
@@ -63,4 +63,4 @@ export const allCards = [
   "14S",
 ];
 
-export const roomsTotal = Math.ceil(allCards.length / 4);
+export const roomsTotal = Math.ceil(allCards.length / 3);
