@@ -21,7 +21,9 @@ import { StatusBar } from "./components/StatusBar";
 type PlayState = {
   drawDeck: string[];
   discardDeck: string[];
+  currentRoom: number;
   roomCards: (string | undefined)[];
+  ranRooms: number[];
   health: number;
   weapon: string | undefined;
   weaponCards: string[];
@@ -31,7 +33,9 @@ function App() {
   const defaultPlayState: PlayState = {
     drawDeck: [],
     discardDeck: [],
+    currentRoom: 0,
     roomCards: [],
+    ranRooms: [],
     weapon: undefined,
     weaponCards: [],
     health: 20,
@@ -43,7 +47,6 @@ function App() {
   );
   const [gameStarted, setGameStarted] = useState(false);
   const [playState, setPlayState] = useState(playStateStorage);
-  const [ranLastRoom, setRanLastRoom] = useState(false);
 
   // Reset game
   function resetGame() {
@@ -97,6 +100,7 @@ function App() {
       ...prev,
       drawDeck: playState.drawDeck.slice(4),
       roomCards,
+      currentRoom: playState.currentRoom + 1,
     }));
   }
 
@@ -111,7 +115,6 @@ function App() {
     // Populate room, only consider defined roomCards
     if (gameStarted && getValidRoomCards(playState.roomCards).length <= 1) {
       populateRoom();
-      setRanLastRoom(false);
     }
 
     setPlayStateStorage(playState);
@@ -199,8 +202,6 @@ function App() {
   }
 
   function runFromRoom() {
-    setRanLastRoom(true);
-
     setPlayState((prev) => ({
       ...prev,
       drawDeck: [
@@ -210,14 +211,13 @@ function App() {
           : []),
       ],
       roomCards: [],
+      ranRooms: [...playState.ranRooms, playState.currentRoom],
     }));
   }
 
   function triggerEnd() {
     console.log("You died!");
   }
-
-  const roomNumber = roomsTotal - Math.ceil(playState.drawDeck.length / 4);
 
   function getDamageValue(card: string) {
     const { cardValue: monsterValue } = parseCard(card);
@@ -227,6 +227,12 @@ function App() {
 
     return damage;
   }
+
+  const lastRoomRan = playState.ranRooms.length
+    ? playState.ranRooms.slice(-1)[0]
+    : undefined;
+  const canRun =
+    lastRoomRan === undefined || playState.currentRoom !== lastRoomRan + 1;
 
   return (
     <div className="main">
@@ -253,14 +259,14 @@ function App() {
         <StatusBar
           type="room"
           icon={<DoorIcon />}
-          value={roomNumber}
-          total={roomsTotal}
-          progress={roomNumber / roomsTotal}
+          value={playState.currentRoom}
+          total={roomsTotal + (playState.ranRooms.length ?? 0)}
+          progress={playState.currentRoom / roomsTotal}
         >
           <button
-            className="plain-btn"
+            className="run-btn"
             onClick={() => runFromRoom()}
-            disabled={ranLastRoom}
+            disabled={!canRun}
           >
             Run
           </button>

@@ -110,10 +110,6 @@ $cutoff: 400px;
 
       .card {
         width: 100%;
-
-        &--empty {
-          background: var(--K800);
-        }
       }
     }
     &__separator {
@@ -335,6 +331,10 @@ $cutoff: 400px;
   svg {
     width: 100%;
   }
+
+  &--empty {
+    background: var(--K900);
+  }
 }
 
 // Status Bar
@@ -406,6 +406,21 @@ $cutoff: 400px;
       &__current {
         color: var(--K800);
       }
+    }
+  }
+
+  .run-btn {
+    background: var(--purple);
+
+    font-size: 16px;
+    font-weight: 600;
+
+    &:hover {
+      background: var(--dark-purple);
+    }
+
+    &:disabled {
+      background: var(--K700);
     }
   }
 }
