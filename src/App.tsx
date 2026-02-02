@@ -19,7 +19,6 @@ import { HeartIcon } from "./components/icons/Heart";
 import { PotionIcon } from "./components/icons/Potion";
 import { SwordIcon } from "./components/icons/Sword";
 import { FistIcon } from "./components/icons/Fist";
-import { HeartOutlineIcon } from "./components/icons/HeartOutline";
 import { StatusBar } from "./components/StatusBar";
 import clsx from "clsx";
 import { ImagePreloader } from "./utils/ImagePreloader";
@@ -30,6 +29,7 @@ import { Modal } from "./components/Modal";
 import { EquipIcon } from "./components/icons/Equip";
 import { Card } from "./components/Card";
 import { MenuModal } from "./components/MenuModal";
+import { MenuIcon } from "./components/icons/Menu";
 
 function App() {
   const [playStateStorage, setPlayStateStorage] = useLocalStorage(
@@ -287,13 +287,13 @@ function App() {
 
         <div className="main__header">
           <button
-            className="plain-btn"
+            className="menu-btn"
             type="button"
             onClick={() => {
               setOpenModal(Modals.Menu);
             }}
           >
-            Menu
+            <MenuIcon />
           </button>
 
           <h2>Scoundrel</h2>
@@ -303,178 +303,194 @@ function App() {
           </button>
         </div>
 
-        <div className="statuses">
-          <StatusBar
-            type="health"
-            icon={<HeartOutlineIcon />}
-            value={playState.health}
-            total={maxHealth}
-            progress={playState.health / maxHealth}
-          />
-          <StatusBar
-            type="room"
-            icon={<DoorIcon />}
-            value={playState.currentRoom ?? 1}
-            total={roomsTotal}
-            progress={(playState.currentRoom ?? 1) / roomsTotal}
-          >
-            <button
-              className="run-btn"
-              onClick={() => runFromRoom()}
-              disabled={!canRun}
+        <div className="main__body">
+          <div className="statuses">
+            <StatusBar
+              type="health"
+              icon={<HeartIcon />}
+              value={playState.health}
+              total={maxHealth}
+              progress={playState.health / maxHealth}
+            />
+            <StatusBar
+              type="room"
+              icon={<DoorIcon />}
+              value={playState.currentRoom ?? 1}
+              total={roomsTotal}
+              progress={(playState.currentRoom ?? 1) / roomsTotal}
             >
-              Run
-            </button>
-          </StatusBar>
-          <StatusBar
-            type="weapon"
-            icon={<SwordIcon />}
-            value={weaponValue()}
-            total={maxWeaponStrength}
-            progress={weaponStrength()}
-          />
-        </div>
-
-        <div className="status">
-          <div className="draw-deck">
-            <span>{playState.drawDeck.length}</span>
-
-            <Card card="back" />
+              <button
+                className="run-btn"
+                onClick={() => runFromRoom()}
+                disabled={!canRun}
+              >
+                Run
+              </button>
+            </StatusBar>
+            <StatusBar
+              type="weapon"
+              icon={<SwordIcon />}
+              value={weaponValue()}
+              total={maxWeaponStrength}
+              progress={weaponStrength()}
+            />
           </div>
 
-          <div className="weapons">
-            <div className="weapons__weapon">
-              <Card card={playState.weapon} />
+          <div className="status">
+            <div className="draw-deck">
+              <span>{playState.drawDeck.length}</span>
+
+              <Card card="back" />
             </div>
 
-            <div className="weapons__separator" />
+            <div className="weapons">
+              <div className="weapons__weapon">
+                {!playState.weapon && (
+                  // <div className="weapons__weapon__icon">
+                  <SwordIcon />
+                  // </div>
+                )}
 
-            <div className="weapons__cards">
-              {playState.weaponCards.map((card, index) => {
-                return <Card key={"weapon-card" + index} card={card} />;
+                <Card card={playState.weapon} />
+              </div>
+
+              <div className="weapons__separator" />
+
+              <div className="weapons__cards">
+                {playState.weaponCards.map((card, index) => {
+                  return <Card key={"weapon-card" + index} card={card} />;
+                })}
+              </div>
+            </div>
+          </div>
+
+          <div className="room-and-actions">
+            <div className="room-cards">
+              {playState.roomCards.map((card, index) => {
+                return <Card key={"card" + index} card={card} />;
+              })}
+            </div>
+
+            <div className="actions">
+              {playState.roomCards.map((card, index) => {
+                const { cardType, cardValue } = parseCard(card);
+
+                return (
+                  <div key={"action" + index} className="actions__buttons">
+                    {card ? (
+                      <>
+                        {cardType === CardTypes.Potion && (
+                          <button
+                            className={clsx(
+                              "action-btn action-btn--heal",
+                              usedPotionInRoom && "action-btn--heal-no-effect",
+                            )}
+                            onClick={() => doHeal(card)}
+                            disabled={gameState !== GameStates.InProgress}
+                          >
+                            <PotionIcon />
+                            <span>
+                              +{usedPotionInRoom ? 0 : cardValue} <HeartIcon />
+                            </span>
+                          </button>
+                        )}
+
+                        {cardType === CardTypes.Weapon && (
+                          <button
+                            className="action-btn action-btn--equip"
+                            onClick={() => doEquip(card)}
+                          >
+                            <EquipIcon />
+                          </button>
+                        )}
+
+                        {cardType === CardTypes.Monster && (
+                          <>
+                            <button
+                              className="action-btn action-btn--fight action-btn--fight-fist"
+                              onClick={() => doFightBarefist(card)}
+                              disabled={gameState !== GameStates.InProgress}
+                            >
+                              <FistIcon />
+                              <span>
+                                -{cardValue} <HeartIcon />
+                              </span>
+                            </button>
+                            <button
+                              className="action-btn action-btn--fight action-btn--fight-weapon"
+                              onClick={() => doFightWeapon(card)}
+                              disabled={
+                                !canUseWeapon(cardValue) ||
+                                gameState !== GameStates.InProgress
+                              }
+                            >
+                              <SwordIcon />
+
+                              <span>
+                                {canUseWeapon(cardValue) ? (
+                                  <>
+                                    {`-${getDamageValue(card)}`}
+                                    <HeartIcon />
+                                  </>
+                                ) : (
+                                  "--"
+                                )}
+                              </span>
+                            </button>
+                          </>
+                        )}
+                      </>
+                    ) : (
+                      <div />
+                    )}
+                  </div>
+                );
               })}
             </div>
           </div>
         </div>
-
-        <div className="room-cards">
-          {playState.roomCards.map((card, index) => {
-            return <Card key={"card" + index} card={card} />;
-          })}
-        </div>
-
-        <div className="actions">
-          {playState.roomCards.map((card, index) => {
-            const { cardType, cardValue } = parseCard(card);
-
-            return (
-              <div key={"action" + index} className="actions__buttons">
-                {card ? (
-                  <>
-                    {cardType === CardTypes.Potion && (
-                      <button
-                        className={clsx(
-                          "action-btn action-btn--heal",
-                          usedPotionInRoom && "action-btn--heal-no-effect",
-                        )}
-                        onClick={() => doHeal(card)}
-                        disabled={gameState !== GameStates.InProgress}
-                      >
-                        <PotionIcon />
-                        <span>
-                          +{usedPotionInRoom ? 0 : cardValue} <HeartIcon />
-                        </span>
-                      </button>
-                    )}
-
-                    {cardType === CardTypes.Weapon && (
-                      <button
-                        className="action-btn action-btn--equip"
-                        onClick={() => doEquip(card)}
-                      >
-                        <EquipIcon />
-                      </button>
-                    )}
-
-                    {cardType === CardTypes.Monster && (
-                      <>
-                        <button
-                          className="action-btn action-btn--fight action-btn--fight-fist"
-                          onClick={() => doFightBarefist(card)}
-                          disabled={gameState !== GameStates.InProgress}
-                        >
-                          <FistIcon />
-                          <span>
-                            -{cardValue} <HeartIcon />
-                          </span>
-                        </button>
-                        <button
-                          className="action-btn action-btn--fight action-btn--fight-weapon"
-                          onClick={() => doFightWeapon(card)}
-                          disabled={
-                            !canUseWeapon(cardValue) ||
-                            gameState !== GameStates.InProgress
-                          }
-                        >
-                          <SwordIcon />
-
-                          <span>
-                            {canUseWeapon(cardValue) ? (
-                              <>
-                                {`-${getDamageValue(card)}`}
-                                <HeartIcon />
-                              </>
-                            ) : (
-                              "--"
-                            )}
-                          </span>
-                        </button>
-                      </>
-                    )}
-                  </>
-                ) : (
-                  <div />
-                )}
-              </div>
-            );
-          })}
-        </div>
       </div>
 
       <Modal
-        title="You won!"
+        // title="You won!"
         isOpen={openModal === Modals.Won}
         onClose={() => {
           setOpenModal(undefined);
         }}
       >
-        <button
-          className="plain-btn"
-          onClick={() => {
-            gameReset();
-            setOpenModal(undefined);
-          }}
-        >
-          Play again
-        </button>
+        <div className="win-lose-text">
+          <h2>You won!</h2>
+          <button
+            className="plain-btn"
+            onClick={() => {
+              gameReset();
+              setOpenModal(undefined);
+            }}
+          >
+            Play again
+          </button>
+        </div>
       </Modal>
 
       <Modal
-        title="You died!"
+        // title="You died!"
         isOpen={openModal === Modals.Lost}
         onClose={() => {
           setOpenModal(undefined);
         }}
       >
-        <button
-          className="plain-btn"
-          onClick={() => {
-            gameReset();
-            setOpenModal(undefined);
-          }}
-        >
-          Try again
-        </button>
+        <div className="win-lose-text">
+          <h2>You died!</h2>
+          <button
+            className="plain-btn"
+            onClick={() => {
+              gameReset();
+              setOpenModal(undefined);
+            }}
+          >
+            Try again
+          </button>
+        </div>
       </Modal>
 
       {openModal === Modals.Menu && (

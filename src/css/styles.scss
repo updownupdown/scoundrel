@@ -34,6 +34,7 @@ html {
 }
 
 body {
+  overflow-y: auto;
   position: relative;
   display: flex;
   align-items: center;
@@ -45,6 +46,9 @@ body {
   background-image: url("/wall-tile.jpg");
   background-size: cover;
 
+  font-optical-sizing: auto;
+  font-style: normal;
+  font-variation-settings: "wdth" 100;
   color: var(--white);
   line-height: 1;
 }
@@ -64,17 +68,53 @@ h3,
 h4,
 h5,
 h6,
-p {
+p,
+li {
+  margin-bottom: 20px;
   font-family: var(--font);
   font-size: 16px;
-  font-weight: 600;
   line-height: 1.3;
   color: var(--white);
+  line-height: 1.5;
 }
 
-p {
+ul {
+  padding-left: 20px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 700;
+  font-variant: small-caps;
+}
+
+h1 {
+  font-size: 30px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 28px;
+}
+h4 {
+  font-size: 26px;
+}
+h5 {
+  font-size: 24px;
+}
+h6 {
+  font-size: 20px;
+}
+
+p,
+li {
   margin: 0 0 20px;
-  font-weight: 500;
+  font-weight: 300;
 
   b {
     font-weight: 700;
@@ -84,31 +124,33 @@ p {
 a {
   text-decoration: none;
   font-weight: 600;
-}
+  color: var(--blue);
 
-button {
-  cursor: pointer;
-  background: unset;
-  border: unset;
+  &:hover {
+    color: var(--red);
+  }
 }
 
 button {
   transition: 0.2s ease all;
   transition-property: background-color, border-color, color;
   cursor: pointer;
-  padding: 6px 8px;
+  padding: 0 16px;
 
-  border-radius: 6px;
-  border: unset;
+  height: 40px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  border-radius: 20px;
+  border: 2px solid rgba(var(--K400-rgb), 0.2);
   background: unset;
 
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 500;
   color: var(--K100);
-
-  &.plain-btn {
-    border: 1px solid var(--K700);
-  }
+  line-height: 1.4;
 
   &:disabled {
     cursor: not-allowed;
