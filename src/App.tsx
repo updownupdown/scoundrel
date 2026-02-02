@@ -30,6 +30,7 @@ import { EquipIcon } from "./components/icons/Equip";
 import { Card } from "./components/Card";
 import { MenuModal } from "./components/MenuModal";
 import { MenuIcon } from "./components/icons/Menu";
+import { DragonIcon } from "./components/icons/Dragon";
 
 function App() {
   const [playStateStorage, setPlayStateStorage] = useLocalStorage(
@@ -41,6 +42,8 @@ function App() {
   const [usedPotionInRoom, setUsedPotionInRoom] = useState(false);
   const [openModal, setOpenModal] = useState<ModalType | undefined>(undefined);
   const [isRunning, setIsRunning] = useState(false);
+  const [score, setScore] = useState(0);
+  const [bonusScore, setBonusScore] = useState(0);
 
   // ===================================
   // Info
@@ -105,16 +108,37 @@ function App() {
       drawDeck: arrayShuffle(allCards),
     });
     setGameState(GameStates.InProgress);
+    setScore(0);
+    setBonusScore(0);
+    setIsRunning(false);
+    setUsedPotionInRoom(false);
   }
 
   function gameLose() {
     setGameState(GameStates.Lost);
     setOpenModal(Modals.Lost);
+
+    const remainingCards = getValidRoomCards([
+      ...playState.drawDeck,
+      ...playState.roomCards,
+    ]);
+    let tally = 0;
+
+    for (let i = 0; i < remainingCards.length; i++) {
+      const { cardType, cardValue } = parseCard(remainingCards[i]);
+
+      if (cardType === CardTypes.Monster) {
+        tally -= cardValue;
+      }
+    }
+
+    setScore(tally);
   }
 
   function gameWin() {
     setGameState(GameStates.Won);
     setOpenModal(Modals.Won);
+    setScore(playState.health + bonusScore);
   }
 
   useEffect(() => {
@@ -200,6 +224,15 @@ function App() {
       health,
     }));
 
+    // Bonus score if applicable
+    if (
+      playState.drawDeck.length === 0 &&
+      playState.roomCards.length === 0 &&
+      playState.health === maxHealth
+    ) {
+      setBonusScore(cardValue);
+    }
+
     discardFromRoom(card);
   }
 
@@ -277,7 +310,7 @@ function App() {
           <Confetti
             mode="fall"
             particleCount={80}
-            colors={["#c8102e", "#f16f23", "#9d22e4", "#2bb363", "#1fb7fd"]}
+            colors={["#b43733", "#da8037", "#52a3c4", "#8956b9", "#4ea069"]}
           />
         </div>
       )}
@@ -345,11 +378,7 @@ function App() {
 
             <div className="weapons">
               <div className="weapons__weapon">
-                {!playState.weapon && (
-                  // <div className="weapons__weapon__icon">
-                  <SwordIcon />
-                  // </div>
-                )}
+                {!playState.weapon && <SwordIcon />}
 
                 <Card card={playState.weapon} />
               </div>
@@ -357,6 +386,8 @@ function App() {
               <div className="weapons__separator" />
 
               <div className="weapons__cards">
+                <DragonIcon />
+
                 {playState.weaponCards.map((card, index) => {
                   return <Card key={"weapon-card" + index} card={card} />;
                 })}
@@ -389,9 +420,7 @@ function App() {
                             disabled={gameState !== GameStates.InProgress}
                           >
                             <PotionIcon />
-                            <span>
-                              +{usedPotionInRoom ? 0 : cardValue} <HeartIcon />
-                            </span>
+                            <span>+{usedPotionInRoom ? 0 : cardValue}</span>
                           </button>
                         )}
 
@@ -407,16 +436,6 @@ function App() {
                         {cardType === CardTypes.Monster && (
                           <>
                             <button
-                              className="action-btn action-btn--fight action-btn--fight-fist"
-                              onClick={() => doFightBarefist(card)}
-                              disabled={gameState !== GameStates.InProgress}
-                            >
-                              <FistIcon />
-                              <span>
-                                -{cardValue} <HeartIcon />
-                              </span>
-                            </button>
-                            <button
                               className="action-btn action-btn--fight action-btn--fight-weapon"
                               onClick={() => doFightWeapon(card)}
                               disabled={
@@ -425,17 +444,19 @@ function App() {
                               }
                             >
                               <SwordIcon />
-
                               <span>
-                                {canUseWeapon(cardValue) ? (
-                                  <>
-                                    {`-${getDamageValue(card)}`}
-                                    <HeartIcon />
-                                  </>
-                                ) : (
-                                  "--"
-                                )}
+                                {canUseWeapon(cardValue)
+                                  ? `-${getDamageValue(card)}`
+                                  : "--"}
                               </span>
+                            </button>
+                            <button
+                              className="action-btn action-btn--fight action-btn--fight-fist"
+                              onClick={() => doFightBarefist(card)}
+                              disabled={gameState !== GameStates.InProgress}
+                            >
+                              <FistIcon />
+                              <span>-{cardValue}</span>
                             </button>
                           </>
                         )}
@@ -452,14 +473,14 @@ function App() {
       </div>
 
       <Modal
-        // title="You won!"
         isOpen={openModal === Modals.Won}
         onClose={() => {
           setOpenModal(undefined);
         }}
       >
         <div className="win-lose-text">
-          <h2>You won!</h2>
+          <h2 className="color-green">You won!</h2>
+          <h5>Score: {score}</h5>
           <button
             className="plain-btn"
             onClick={() => {
@@ -473,14 +494,14 @@ function App() {
       </Modal>
 
       <Modal
-        // title="You died!"
         isOpen={openModal === Modals.Lost}
         onClose={() => {
           setOpenModal(undefined);
         }}
       >
         <div className="win-lose-text">
-          <h2>You died!</h2>
+          <h2 className="color-red">You died!</h2>
+          <h5>Score: {score}</h5>
           <button
             className="plain-btn"
             onClick={() => {

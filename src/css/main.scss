@@ -67,6 +67,7 @@
       justify-content: center;
       align-items: center;
       padding: unset;
+      margin-left: calc(var(--gap) / 3 * -1);
 
       width: 44px;
       height: 44px;
@@ -75,9 +76,18 @@
       border-radius: 6px;
 
       svg {
+        transition: 0.1s ease all;
         width: 24px;
         height: 24px;
-        fill: var(--white);
+        fill: var(--beige);
+      }
+
+      &:hover {
+        background: rgba(var(--K950-rgb), 0.5);
+
+        svg {
+          fill: var(--white);
+        }
       }
     }
 
@@ -120,7 +130,7 @@
 .statuses {
   flex-direction: column;
   justify-content: space-between;
-  gap: calc(var(--gap) * 0.4);
+  gap: calc(var(--gap) * 0.5);
 }
 
 // Status Row
@@ -146,15 +156,15 @@
       z-index: 2;
       top: 50%;
       left: 50%;
-      padding: calc(var(--gap) * 0.4);
+      padding: calc(var(--gap) * 0.6);
 
       transform: translate(-50%, -50%);
 
-      border-radius: calc(var(--gap) * 0.2);
+      border-radius: 50%;
       background: rgba(var(--K900-rgb), 0.6);
       box-shadow:
-        0 0 12px rgba(var(--K900-rgb), 0.8),
-        0 0 20px rgba(var(--K900-rgb), 0.8);
+        0 0 12px rgba(var(--K900-rgb), 0.6),
+        0 0 20px rgba(var(--K900-rgb), 0.4);
 
       font-size: 26px;
       font-weight: 600;
@@ -177,8 +187,11 @@
 
     border-radius: $weapons-border-radius;
     border: 1px solid rgba(var(--K700-rgb), 0.55);
-    background: rgba(var(--black-rgb), 0.6);
-    box-shadow: inset 0 0 10px rgba(var(--black-rgb), 0.8);
+    background: rgba(var(--K900-rgb), 0.6);
+    box-shadow:
+      inset 0 0 10px rgba(var(--K100-rgb), 0.2),
+      1px 2px 12px rgba(var(--K950-rgb), 0.5),
+      2px 4px 20px rgba(var(--K950-rgb), 0.6);
 
     &:after {
       pointer-events: none;
@@ -199,9 +212,6 @@
       width: var(--card-width);
       aspect-ratio: var(--card-aspect-ratio);
 
-      // &__icon {
-      // position: absolute;
-
       > svg {
         position: absolute;
         top: 50%;
@@ -211,7 +221,6 @@
         height: 50%;
         fill: rgba(var(--K500-rgb), 0.7);
       }
-      // }
     }
     &__separator {
       width: 1px;
@@ -228,6 +237,18 @@
 
       .card {
         position: absolute;
+      }
+
+      > svg {
+        position: absolute;
+        top: 50%;
+        left: 45%;
+        transform: translate(-50%, -50%);
+        width: 85%;
+        height: 85%;
+        fill: rgba(var(--K950-rgb), 0.8);
+
+        filter: drop-shadow(0 0 4px rgba(var(--K200-rgb), 0.1));
       }
 
       @mixin card-offsets($count, $offset) {
@@ -286,16 +307,16 @@
       align-items: center;
       width: 100%;
       height: var(--action-button-height);
-      padding: 0 calc(var(--action-button-height) * 0.1) 0
-        calc(var(--action-button-height) * 0.1);
+      padding: 0 calc(var(--action-button-height) * 0.2) 0
+        calc(var(--action-button-height) * 0.2);
 
       border-radius: calc(var(--action-button-height) / 2);
       border: 2px solid transparent;
 
-      > svg {
+      svg {
         width: 26px;
         height: 26px;
-        filter: drop-shadow(1px 2px 2px rgba(var(--black-rgb), 0.3));
+        filter: drop-shadow(1px 2px 2px rgba(var(--K950-rgb), 0.3));
       }
 
       span {
@@ -306,22 +327,13 @@
         align-items: center;
         gap: calc(var(--action-button-height) * 0.06);
         flex: 1;
-        font-size: 15px;
+        font-size: 18px;
         font-weight: 700;
         text-align: center;
+        text-shadow: 0 1px 2px rgba(var(--white-rgb), 0.2);
 
-        svg {
-          width: 14px;
-          height: 14px;
-        }
-
-        @media (max-width: constants.$width-cutoff) {
-          font-size: 17px;
-
-          svg {
-            width: 12px;
-            height: 12px;
-          }
+        @media (max-width: 400px) {
+          font-size: 16px;
         }
       }
 
@@ -333,16 +345,11 @@
             0 0 4px rgba(var(--#{$color}-rgb), 0.6),
             1px 2px 10px rgba(var(--#{$color}-rgb), 0.6);
 
-          > svg {
+          svg {
             fill: var(--white);
           }
-
           span {
             color: rgba(var(--black-rgb), 0.8);
-
-            svg {
-              fill: rgba(var(--black-rgb), 0.8);
-            }
           }
 
           &:not(:disabled):hover {
@@ -351,10 +358,6 @@
             box-shadow:
               0 0 8px rgba(var(--#{$color}-rgb), 0.8),
               1px 2px 14px rgba(var(--#{$color}-rgb), 0.8);
-
-            span {
-              opacity: 1;
-            }
           }
         }
       }
@@ -363,24 +366,19 @@
       @include action-btn-color("heal-no-effect", "dull-green");
       @include action-btn-color("equip", "blue");
       @include action-btn-color("fight-fist", "red");
-      @include action-btn-color("fight-weapon", "orange");
+      @include action-btn-color("fight-weapon", "purple");
 
       &:disabled {
-        background: rgba(var(--black-rgb), 0.5);
+        background: rgba(var(--K950-rgb), 0.7);
         border-color: transparent;
         box-shadow: unset;
 
-        > svg {
+        svg {
           fill: var(--K700);
           filter: unset;
         }
-
         span {
           color: var(--K800);
-
-          svg {
-            fill: var(--K800);
-          }
         }
       }
     }
@@ -419,7 +417,7 @@
   }
 
   &--empty {
-    background: rgba(var(--black-rgb), 0.6);
+    background: rgba(var(--K950-rgb), 0.6);
 
     &::before {
       box-shadow: inset 0 0 15px rgba(var(--black-rgb), 0.5);
@@ -438,15 +436,17 @@
 
   &__icon {
     border-radius: 6px;
-    padding: 8px;
-    box-shadow: inset 0 0 3px rgba(var(--white-rgb), 0.1);
+    padding: 6px;
+    box-shadow:
+      inset 0 0 4px 1px rgba(var(--white-rgb), 0.3),
+      inset 0 0 12px rgba(var(--K950-rgb), 0.4);
 
     svg {
-      width: 22px;
-      height: 22px;
-      fill: var(--white);
+      width: 26px;
+      height: 26px;
+      fill: var(--K900);
 
-      filter: drop-shadow(1px 2px 2px rgba(var(--black-rgb), 0.6));
+      filter: drop-shadow(0 0 1px rgba(var(--white-rgb), 0.3));
     }
   }
 
@@ -495,7 +495,7 @@
   }
 
   @include bar-color("health", "green");
-  @include bar-color("room", "purple");
+  @include bar-color("room", "orange");
   @include bar-color("weapon", "blue");
 
   &--na {
@@ -526,12 +526,12 @@
 
       &:disabled {
         border-color: rgba(var(--K800-rgb), 0.4);
-        background: rgba(var(--black-rgb), 0.3);
+        background: rgba(var(--K950-rgb), 0.3);
         box-shadow: unset;
         color: var(--K700);
       }
     }
   }
 
-  @include special-btn("run-btn", "purple");
+  @include special-btn("run-btn", "orange");
 }
