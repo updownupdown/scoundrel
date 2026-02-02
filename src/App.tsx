@@ -386,11 +386,11 @@ function App() {
               <div className="weapons__separator" />
 
               <div className="weapons__cards">
-                <DragonIcon />
-
                 {playState.weaponCards.map((card, index) => {
                   return <Card key={"weapon-card" + index} card={card} />;
                 })}
+
+                <DragonIcon />
               </div>
             </div>
           </div>
