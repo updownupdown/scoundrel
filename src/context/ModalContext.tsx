@@ -4,6 +4,7 @@ export const Modals = {
   Won: "Won",
   Lost: "Lost",
   Menu: "Menu",
+  Deck: "Deck",
 } as const;
 
 export type ModalType = (typeof Modals)[keyof typeof Modals];

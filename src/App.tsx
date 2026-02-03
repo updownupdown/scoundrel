@@ -31,6 +31,8 @@ import { Card } from "./components/Card";
 import { MenuModal } from "./components/MenuModal";
 import { MenuIcon } from "./components/icons/Menu";
 import { DragonIcon } from "./components/icons/Dragon";
+import { SkullIcon } from "./components/icons/Skull";
+import { DeckModal } from "./components/DeckModal";
 
 function App() {
   const [playStateStorage, setPlayStateStorage] = useLocalStorage(
@@ -63,21 +65,6 @@ function App() {
       (lowestWeapon === undefined || cardValue < lowestWeapon)
     );
   }
-
-  const weaponValue = () => {
-    if (!playState.weapon) return undefined;
-    const { cardValue } = parseCard(playState.weapon);
-    return cardValue;
-  };
-
-  const weaponStrength = () => {
-    if (!playState.weapon) return undefined;
-
-    const lowest = lowestWeaponCard();
-    if (!lowest) return 1;
-
-    return (lowest - 1) / maxWeaponStrength;
-  };
 
   function getDamageValue(card: string) {
     const { cardValue: monsterValue } = parseCard(card);
@@ -337,45 +324,15 @@ function App() {
         </div>
 
         <div className="main__body">
-          <div className="statuses">
-            <StatusBar
-              type="health"
-              icon={<HeartIcon />}
-              value={playState.health}
-              total={maxHealth}
-              progress={playState.health / maxHealth}
-            />
-            <StatusBar
-              type="room"
-              icon={<DoorIcon />}
-              value={playState.currentRoom ?? 1}
-              total={roomsTotal}
-              progress={(playState.currentRoom ?? 1) / roomsTotal}
-            >
-              <button
-                className="run-btn"
-                onClick={() => runFromRoom()}
-                disabled={!canRun}
-              >
-                Run
-              </button>
-            </StatusBar>
-            <StatusBar
-              type="weapon"
-              icon={<SwordIcon />}
-              value={weaponValue()}
-              total={maxWeaponStrength}
-              progress={weaponStrength()}
-            />
-          </div>
+          <StatusBar
+            type="health"
+            icon={<HeartIcon />}
+            value={playState.health}
+            total={maxHealth}
+            progress={playState.health / maxHealth}
+          />
 
-          <div className="status">
-            <div className="draw-deck">
-              <span>{playState.drawDeck.length}</span>
-
-              <Card card="back" />
-            </div>
-
+          <div className="deck-and-weapons">
             <div className="weapons">
               <div className="weapons__weapon">
                 {!playState.weapon && <SwordIcon />}
@@ -393,7 +350,60 @@ function App() {
                 <DragonIcon />
               </div>
             </div>
+
+            <div
+              className={clsx(
+                "draw-deck",
+                playState.drawDeck.length === 0 && "draw-deck--empty",
+              )}
+              style={{ transform: "translate(4px, 4px)" }}
+              onClick={() => {
+                setOpenModal(Modals.Deck);
+              }}
+            >
+              {Array.from(
+                { length: Math.ceil(playState.drawDeck.length / 8) },
+                (num, index) => (
+                  <div
+                    key={index + "cardwrap"}
+                    className="card-wrap"
+                    style={{
+                      zIndex: index,
+                      marginTop: `-${index * 2}px`,
+                      marginLeft: `-${index * 2}px`,
+                    }}
+                  >
+                    {index === Math.ceil(playState.drawDeck.length / 8) - 1 && (
+                      <div className="draw-deck__text">
+                        <span className="draw-deck__text__count">
+                          {playState.drawDeck.length}
+                        </span>
+
+                        {/* <span className="draw-deck__text__peek">Peek</span> */}
+                      </div>
+                    )}
+                    <Card key={index} card="back" />
+                  </div>
+                ),
+              )}
+            </div>
           </div>
+
+          <StatusBar
+            type="room"
+            icon={<DoorIcon />}
+            value={playState.currentRoom ?? 1}
+            total={roomsTotal}
+            progress={(playState.currentRoom ?? 1) / roomsTotal}
+          >
+            <button
+              className="run-btn"
+              onClick={() => runFromRoom()}
+              disabled={!canRun}
+            >
+              Run
+            </button>
+          </StatusBar>
 
           <div className="room-and-actions">
             <div className="room-cards">
@@ -445,9 +455,15 @@ function App() {
                             >
                               <SwordIcon />
                               <span>
-                                {canUseWeapon(cardValue)
-                                  ? `-${getDamageValue(card)}`
-                                  : "--"}
+                                {canUseWeapon(cardValue) ? (
+                                  getDamageValue(card) >= playState.health ? (
+                                    <SkullIcon />
+                                  ) : (
+                                    `-${getDamageValue(card)}`
+                                  )
+                                ) : (
+                                  "--"
+                                )}
                               </span>
                             </button>
                             <button
@@ -456,7 +472,13 @@ function App() {
                               disabled={gameState !== GameStates.InProgress}
                             >
                               <FistIcon />
-                              <span>-{cardValue}</span>
+                              {cardValue >= playState.health ? (
+                                <span>
+                                  <SkullIcon />
+                                </span>
+                              ) : (
+                                <span>-{cardValue}</span>
+                              )}
                             </button>
                           </>
                         )}
@@ -520,6 +542,16 @@ function App() {
           onClose={() => {
             setOpenModal(undefined);
           }}
+        />
+      )}
+
+      {openModal === Modals.Deck && (
+        <DeckModal
+          isOpen={true}
+          onClose={() => {
+            setOpenModal(undefined);
+          }}
+          drawDeck={playState.drawDeck}
         />
       )}
     </div>

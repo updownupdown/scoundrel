@@ -2,36 +2,6 @@ export const maxHealth = 20;
 export const maxWeaponStrength = 14;
 
 export const allCards = [
-  // Hearts - potions
-  "2H",
-  "3H",
-  "4H",
-  "5H",
-  "6H",
-  "7H",
-  "8H",
-  "9H",
-  "10H",
-  // "11H",
-  // "12H",
-  // "13H",
-  // "14H",
-
-  // Diamonds - weapons
-  "2D",
-  "3D",
-  "4D",
-  "5D",
-  "6D",
-  "7D",
-  "8D",
-  "9D",
-  "10D",
-  // "11D",
-  // "12D",
-  // "13D",
-  // "14D",
-
   // Clubs - monsters
   "2C",
   "3C",
@@ -61,6 +31,28 @@ export const allCards = [
   "12S",
   "13S",
   "14S",
+
+  // Hearts - potions
+  "2H",
+  "3H",
+  "4H",
+  "5H",
+  "6H",
+  "7H",
+  "8H",
+  "9H",
+  "10H",
+
+  // Diamonds - weapons
+  "2D",
+  "3D",
+  "4D",
+  "5D",
+  "6D",
+  "7D",
+  "8D",
+  "9D",
+  "10D",
 ];
 
 export const roomsTotal = Math.ceil(allCards.length / 3);
