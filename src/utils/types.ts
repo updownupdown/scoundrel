@@ -9,6 +9,7 @@ export type PlayState = {
   health: number;
   weapon?: string;
   weaponCards: string[];
+  gameState?: GameState;
 };
 
 export const GameStates = {
@@ -29,6 +30,7 @@ export const defaultPlayState: PlayState = {
   weapon: undefined,
   weaponCards: [],
   health: maxHealth,
+  gameState: undefined,
 };
 
 export const CardTypes = {

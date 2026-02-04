@@ -1,24 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import "./css/styles.scss";
 import { useLocalStorage } from "./utils/hooks";
-import {
-  allCards,
-  maxHealth,
-  maxWeaponStrength,
-  roomsTotal,
-} from "./utils/constants";
+import { allCards, maxHealth, roomsTotal } from "./utils/constants";
 import { arrayShuffle, getValidRoomCards, parseCard } from "./utils/utils";
-import {
-  CardTypes,
-  defaultPlayState,
-  GameStates,
-  type GameState,
-} from "./utils/types";
+import { CardTypes, defaultPlayState, GameStates } from "./utils/types";
 import { DoorIcon } from "./components/icons/Door";
 import { HeartIcon } from "./components/icons/Heart";
-import { PotionIcon } from "./components/icons/Potion";
 import { SwordIcon } from "./components/icons/Sword";
-import { FistIcon } from "./components/icons/Fist";
 import { StatusBar } from "./components/StatusBar";
 import clsx from "clsx";
 import { ImagePreloader } from "./utils/ImagePreloader";
@@ -26,13 +14,13 @@ import { Blood } from "./components/Blood";
 import Confetti from "react-confetti-boom";
 import { Modals, type ModalType } from "./context/ModalContext";
 import { Modal } from "./components/Modal";
-import { EquipIcon } from "./components/icons/Equip";
 import { Card } from "./components/Card";
 import { MenuModal } from "./components/MenuModal";
 import { MenuIcon } from "./components/icons/Menu";
 import { DragonIcon } from "./components/icons/Dragon";
-import { SkullIcon } from "./components/icons/Skull";
 import { DeckModal } from "./components/DeckModal";
+import { ActionButton } from "./components/ActionButton";
+import { animateCard, animationCleanup } from "./utils/animations";
 
 function App() {
   const [playStateStorage, setPlayStateStorage] = useLocalStorage(
@@ -40,12 +28,13 @@ function App() {
     defaultPlayState,
   );
   const [playState, setPlayState] = useState(playStateStorage);
-  const [gameState, setGameState] = useState<GameState | undefined>(undefined);
   const [usedPotionInRoom, setUsedPotionInRoom] = useState(false);
   const [openModal, setOpenModal] = useState<ModalType | undefined>(undefined);
   const [isRunning, setIsRunning] = useState(false);
   const [score, setScore] = useState(0);
   const [bonusScore, setBonusScore] = useState(0);
+  const wrapRef = useRef(null);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   // ===================================
   // Info
@@ -61,7 +50,7 @@ function App() {
   function canUseWeapon(cardValue: number) {
     const lowestWeapon = lowestWeaponCard();
     return (
-      playState.weapon &&
+      !!playState.weapon &&
       (lowestWeapon === undefined || cardValue < lowestWeapon)
     );
   }
@@ -82,7 +71,7 @@ function App() {
     lastRoomNumberRanFrom !== undefined &&
     playState.currentRoom === lastRoomNumberRanFrom;
   const canRun =
-    gameState === GameStates.InProgress &&
+    playState.gameState === GameStates.InProgress &&
     getValidRoomCards(playState.roomCards).length === 4 &&
     !ranLastRoom;
 
@@ -93,8 +82,8 @@ function App() {
     setPlayState({
       ...defaultPlayState,
       drawDeck: arrayShuffle(allCards),
+      gameState: GameStates.InProgress,
     });
-    setGameState(GameStates.InProgress);
     setScore(0);
     setBonusScore(0);
     setIsRunning(false);
@@ -102,7 +91,11 @@ function App() {
   }
 
   function gameLose() {
-    setGameState(GameStates.Lost);
+    setPlayState((prev) => ({
+      ...prev,
+      gameState: GameStates.Lost,
+    }));
+
     setOpenModal(Modals.Lost);
 
     const remainingCards = getValidRoomCards([
@@ -123,19 +116,28 @@ function App() {
   }
 
   function gameWin() {
-    setGameState(GameStates.Won);
+    setPlayState((prev) => ({
+      ...prev,
+      gameState: GameStates.Won,
+    }));
+
     setOpenModal(Modals.Won);
     setScore(playState.health + bonusScore);
   }
 
   useEffect(() => {
-    if (gameState === undefined) {
+    animationCleanup();
+
+    if (playState.gameState === undefined) {
       // Initial game
       gameReset();
-    } else if (playState.health <= 0) {
+    } else if (
+      playState.gameState === GameStates.InProgress &&
+      playState.health <= 0
+    ) {
       // Trigger lost
       gameLose();
-    } else if (gameState === GameStates.InProgress) {
+    } else if (playState.gameState === GameStates.InProgress) {
       const validRoomCards = getValidRoomCards(playState.roomCards);
 
       if (playState.drawDeck.length === 0 && validRoomCards.length === 0) {
@@ -199,7 +201,11 @@ function App() {
     }));
   }
 
-  function doHeal(card: string) {
+  async function doHeal(card: string) {
+    setIsAnimating(true);
+
+    await animateCard(card, "potion");
+
     const { cardValue } = parseCard(card);
 
     let health = playState.health + cardValue;
@@ -221,9 +227,15 @@ function App() {
     }
 
     discardFromRoom(card);
+
+    setIsAnimating(false);
   }
 
-  function doEquip(card: string) {
+  async function doEquip(card: string) {
+    setIsAnimating(true);
+
+    await animateCard(card, "weapon-equip");
+
     setPlayState((prev) => ({
       ...prev,
       // Discard previous weapons and weapon cards
@@ -238,9 +250,15 @@ function App() {
     }));
 
     removeFromRoom(card);
+
+    setIsAnimating(false);
   }
 
-  function doFightWeapon(card: string) {
+  async function doFightWeapon(card: string) {
+    setIsAnimating(true);
+
+    await animateCard(card, "weapon-monster");
+
     const { cardValue: monsterValue } = parseCard(card);
 
     if (!playState.weapon) return;
@@ -258,9 +276,15 @@ function App() {
       roomCards: playState.roomCards.map((c) => (c === card ? undefined : c)),
       weaponCards: [...playState.weaponCards, card],
     }));
+
+    setIsAnimating(false);
   }
 
-  function doFightBarefist(card: string) {
+  async function doFightBarefist(card: string) {
+    setIsAnimating(true);
+
+    await animateCard(card, "barefist");
+
     const { cardValue } = parseCard(card);
 
     let health = playState.health - cardValue;
@@ -272,6 +296,8 @@ function App() {
     }));
 
     discardFromRoom(card);
+
+    setIsAnimating(false);
   }
 
   function runFromRoom() {
@@ -290,9 +316,12 @@ function App() {
   }
 
   return (
-    <div className={`wrap game-state--${gameState?.toLowerCase() ?? "na"}`}>
-      {gameState === GameStates.Lost && <Blood />}
-      {gameState === GameStates.Won && (
+    <div
+      ref={wrapRef}
+      className={`wrap game-state--${playState.gameState?.toLowerCase() ?? "na"}`}
+    >
+      {playState.gameState === GameStates.Lost && <Blood />}
+      {playState.gameState === GameStates.Won && (
         <div className="confetti">
           <Confetti
             mode="fall"
@@ -413,82 +442,68 @@ function App() {
             </div>
 
             <div className="actions">
-              {playState.roomCards.map((card, index) => {
-                const { cardType, cardValue } = parseCard(card);
+              {playState.gameState === GameStates.InProgress &&
+                playState.roomCards.map((card, index) => {
+                  const { cardType, cardValue } = parseCard(card);
 
-                return (
-                  <div key={"action" + index} className="actions__buttons">
-                    {card ? (
-                      <>
-                        {cardType === CardTypes.Potion && (
-                          <button
-                            className={clsx(
-                              "action-btn action-btn--heal",
-                              usedPotionInRoom && "action-btn--heal-no-effect",
-                            )}
-                            onClick={() => doHeal(card)}
-                            disabled={gameState !== GameStates.InProgress}
-                          >
-                            <PotionIcon />
-                            <span>+{usedPotionInRoom ? 0 : cardValue}</span>
-                          </button>
-                        )}
-
-                        {cardType === CardTypes.Weapon && (
-                          <button
-                            className="action-btn action-btn--equip"
-                            onClick={() => doEquip(card)}
-                          >
-                            <EquipIcon />
-                          </button>
-                        )}
-
-                        {cardType === CardTypes.Monster && (
-                          <>
-                            <button
-                              className="action-btn action-btn--fight action-btn--fight-weapon"
-                              onClick={() => doFightWeapon(card)}
-                              disabled={
-                                !canUseWeapon(cardValue) ||
-                                gameState !== GameStates.InProgress
+                  return (
+                    <div key={"action" + index} className="actions__buttons">
+                      {card && (
+                        <>
+                          {cardType === CardTypes.Potion && (
+                            <ActionButton
+                              type="heal"
+                              extraClasses={
+                                usedPotionInRoom
+                                  ? ["action-btn--heal-no-effect"]
+                                  : undefined
                               }
-                            >
-                              <SwordIcon />
-                              <span>
-                                {canUseWeapon(cardValue) ? (
-                                  getDamageValue(card) >= playState.health ? (
-                                    <SkullIcon />
-                                  ) : (
-                                    `-${getDamageValue(card)}`
-                                  )
-                                ) : (
-                                  "--"
-                                )}
-                              </span>
-                            </button>
-                            <button
-                              className="action-btn action-btn--fight action-btn--fight-fist"
-                              onClick={() => doFightBarefist(card)}
-                              disabled={gameState !== GameStates.InProgress}
-                            >
-                              <FistIcon />
-                              {cardValue >= playState.health ? (
-                                <span>
-                                  <SkullIcon />
-                                </span>
-                              ) : (
-                                <span>-{cardValue}</span>
-                              )}
-                            </button>
-                          </>
-                        )}
-                      </>
-                    ) : (
-                      <div />
-                    )}
-                  </div>
-                );
-              })}
+                              value={`+${usedPotionInRoom ? 0 : cardValue}`}
+                              onClick={() => doHeal(card)}
+                              isAnimating={isAnimating}
+                            />
+                          )}
+
+                          {cardType === CardTypes.Weapon && (
+                            <ActionButton
+                              type="equip"
+                              onClick={() => doEquip(card)}
+                              isAnimating={isAnimating}
+                            />
+                          )}
+
+                          {cardType === CardTypes.Monster && (
+                            <>
+                              <ActionButton
+                                type="fight-weapon"
+                                value={
+                                  canUseWeapon(cardValue)
+                                    ? `-${getDamageValue(card)}`
+                                    : "--"
+                                }
+                                onClick={() => doFightWeapon(card)}
+                                isAvailable={canUseWeapon(cardValue)}
+                                isAnimating={isAnimating}
+                                showSkull={
+                                  canUseWeapon(cardValue) &&
+                                  getDamageValue(card) >= playState.health
+                                }
+                              />
+
+                              <ActionButton
+                                type="fight-barefist"
+                                value={`-${cardValue}`}
+                                onClick={() => doFightBarefist(card)}
+                                isAnimating={isAnimating}
+                                showSkull={cardValue >= playState.health}
+                              />
+                            </>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
             </div>
           </div>
         </div>

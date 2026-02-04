@@ -1,0 +1,132 @@
+.action-btn {
+  transition: 0.1s ease all;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: var(--action-button-height);
+  padding: 0 calc(var(--action-button-height) * 0.2) 0
+    calc(var(--action-button-height) * 0.2);
+
+  border-radius: calc(var(--action-button-height) / 2);
+  border: 2px solid transparent;
+
+  &:first-child {
+    z-index: 2;
+  }
+  &:last-child {
+    z-index: 1;
+  }
+
+  svg {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    fill: var(--white);
+    filter: drop-shadow(1px 2px 2px rgba(var(--K950-rgb), 0.3));
+  }
+
+  svg.icon-skull {
+    width: 32px;
+    height: 32px;
+    fill: var(--black);
+    filter: drop-shadow(0 0 2px rgba(var(--white-rgb), 0.3));
+
+    @media (max-width: 420px) {
+      width: 28px;
+      height: 28px;
+    }
+  }
+
+  span {
+    transition: 0.1s ease all;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: calc(var(--action-button-height) * 0.06);
+    flex: 1;
+
+    font-size: 18px;
+    font-weight: 700;
+    text-align: center;
+    color: rgba(var(--black-rgb), 0.8);
+    text-shadow: 0 1px 2px rgba(var(--white-rgb), 0.2);
+
+    @media (max-width: 400px) {
+      font-size: 16px;
+    }
+  }
+
+  .skull-icon {
+    pointer-events: none;
+    position: absolute;
+    z-index: 5;
+    top: 0;
+    left: 0;
+    transform: translate(-25%, -25%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+
+    background: var(--card-beige);
+    box-shadow:
+      0 1px 3px rgba(var(--black-rgb), 0.3),
+      1px 2px 6px rgba(var(--black-rgb), 0.3);
+
+    svg {
+      display: block;
+      width: 22px;
+      height: 22px;
+      fill: var(--K900);
+    }
+  }
+
+  @mixin action-btn-color($name, $color) {
+    &--#{$name} {
+      background: rgba(var(--#{$color}-rgb), 1);
+      border-color: rgba(var(--white-rgb), 0.1);
+      box-shadow:
+        0 0 4px rgba(var(--#{$color}-rgb), 0.6),
+        1px 2px 10px rgba(var(--#{$color}-rgb), 0.6);
+
+      &:not(:disabled):hover {
+        background: rgba(var(--#{$color}-rgb), 0.8);
+        border-color: rgba(var(--#{$color}-rgb), 1);
+        box-shadow:
+          0 0 8px rgba(var(--#{$color}-rgb), 0.8),
+          1px 2px 14px rgba(var(--#{$color}-rgb), 0.8);
+      }
+    }
+  }
+
+  @include action-btn-color("heal", "green");
+  @include action-btn-color("heal-no-effect", "dull-green");
+  @include action-btn-color("equip", "blue");
+  @include action-btn-color("fight-barefist", "red");
+  @include action-btn-color("fight-weapon", "purple");
+
+  &--na {
+    background: rgba(var(--K950-rgb), 0.7);
+    border-color: transparent;
+    box-shadow: unset;
+
+    svg {
+      fill: var(--K700);
+      filter: unset;
+    }
+    span {
+      color: var(--K800);
+    }
+  }
+
+  &:not(.action-btn--na):disabled {
+    opacity: 0.8;
+    filter: grayscale(0.3);
+  }
+}
