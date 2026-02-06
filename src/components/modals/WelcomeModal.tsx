@@ -17,7 +17,9 @@ export const WelcomeModal = ({
     <Modal title="Welcome" isOpen={isOpen} onClose={onClose}>
       <h2>Welcome</h2>
 
-      <button onClick={() => setOpenModal(Modals.Menu)}>How to play</button>
+      <button onClick={() => setOpenModal(Modals.HowToPlay)}>
+        How to play
+      </button>
     </Modal>
   );
 };

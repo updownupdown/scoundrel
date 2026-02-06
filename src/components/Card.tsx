@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import type React from "react";
+import "./Card.scss";
 
 interface CardProps {
   card: string | undefined;

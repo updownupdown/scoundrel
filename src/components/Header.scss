@@ -1,0 +1,116 @@
+.header {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  width: 100%;
+  margin-bottom: auto;
+  align-items: center;
+  justify-content: space-between;
+
+  &__title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    svg {
+      margin-right: 8px;
+      width: 38px;
+      height: 38px;
+      fill: var(--card-red);
+    }
+
+    span {
+      font-size: 24px;
+    }
+
+    &__scoundrel {
+      color: var(--card-beige);
+      font-weight: 650;
+    }
+    &__mode {
+      color: var(--card-red);
+      font-weight: 300;
+    }
+  }
+
+  .menu-toggle-btn {
+    transition: 0.1s ease opacity;
+    position: relative;
+    z-index: 8;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 10px;
+    gap: calc(var(--gap) * 0.6);
+
+    border: unset;
+    background: unset;
+    border-radius: 8px;
+    box-shadow: unset;
+
+    &--hide {
+      opacity: 0;
+    }
+
+    span {
+      transition: 0.1s ease all;
+      font-size: 16px;
+      font-weight: 300;
+      color: rgba(var(--card-beige-rgb), 0.5);
+    }
+
+    svg {
+      transition: 0.1s ease all;
+      width: 30px;
+      height: 30px;
+      fill: var(--card-beige);
+    }
+
+    &:hover {
+      span {
+        color: var(--card-red);
+      }
+      svg {
+        fill: var(--card-red);
+      }
+    }
+  }
+
+  .menu {
+    position: absolute;
+    z-index: 9;
+    top: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 200px;
+
+    border-radius: 8px;
+    background: rgba(var(--K950-rgb), 0.98);
+    box-shadow:
+      1px 2px 6px rgba(var(--K950-rgb), 0.6),
+      2px 4px 12px rgba(var(--K950-rgb), 0.6);
+
+    button {
+      transition: 0.1s ease all;
+      width: 100%;
+      height: 50px;
+
+      &:not(.menu-toggle-btn) {
+        padding: 0 20px;
+      }
+
+      &.menu-item-btn {
+        display: flex;
+
+        font-size: 18px;
+        text-align: left;
+
+        &:hover {
+          color: var(--card-red);
+        }
+      }
+    }
+  }
+}

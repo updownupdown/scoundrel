@@ -16,6 +16,18 @@ export type PlayState = {
   usedPotionInRoom: boolean;
 };
 
+export type Stats = {
+  gamesLost: number;
+  gamesWon: number;
+  gamesReset: number;
+};
+
+export const defaultStats = {
+  gamesLost: 0,
+  gamesWon: 0,
+  gamesReset: 0,
+};
+
 export const GameStates = {
   Stopped: "Stopped",
   InProgress: "In Progress",

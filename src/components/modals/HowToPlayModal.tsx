@@ -1,15 +1,15 @@
 import React from "react";
 import { Modal } from "./Modal";
 
-interface MenuModalProps {
+interface HowToPlayProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export const MenuModal = ({ isOpen, onClose }: MenuModalProps) => {
+export const HowToPlayModal = ({ isOpen, onClose }: HowToPlayProps) => {
   return (
     <Modal title="Menu" isOpen={isOpen} onClose={onClose}>
-      <h2>How to play</h2>
+      <h1>How to Play</h1>
       <p>
         Scoundrel is a single-player dungeon crawler card game. A standard deck
         of cards is used, but without the red face cards, red aces, or jokers.
@@ -17,7 +17,7 @@ export const MenuModal = ({ isOpen, onClose }: MenuModalProps) => {
         at 20, runs out.
       </p>
 
-      <h3>Rooms</h3>
+      <h2>Rooms</h2>
 
       <p>
         Each room has 4 cards. You can choose to tackle a room, or run away from
@@ -26,7 +26,7 @@ export const MenuModal = ({ isOpen, onClose }: MenuModalProps) => {
         found in the next room.
       </p>
 
-      <h3>Card Types</h3>
+      <h2>Card Types</h2>
       <ul>
         <li>
           <b>Diamonds (weapons):</b> A weapon allows you to fight a monster
@@ -48,7 +48,7 @@ export const MenuModal = ({ isOpen, onClose }: MenuModalProps) => {
         </li>
       </ul>
 
-      <h3>Scoring</h3>
+      <h2>Scoring</h2>
       <p>
         You win by making it through every card/room. You lose by reaching a
         health of 0.
@@ -61,21 +61,6 @@ export const MenuModal = ({ isOpen, onClose }: MenuModalProps) => {
         Your <b>winning score</b> is equal to your remaining health. If your
         remaining health is 20, and the last card played is a potion, your score
         is 20 plus the value of that potion card.
-      </p>
-
-      <h3>Credits</h3>
-      <p>Developed by James Carmichael.</p>
-      <p>Original game by Zach Gage and Kurt Bieg.</p>
-
-      <p>
-        <a href="https://scoundrel-vanilla.netlify.app/" target="_blank">
-          Inspired by this implementation.
-        </a>
-      </p>
-      <p>
-        <a href="https://github.com/updownupdown/scoundrel" target="_blank">
-          View source code on GitHub
-        </a>
       </p>
     </Modal>
   );

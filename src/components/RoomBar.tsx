@@ -46,7 +46,7 @@ export const RoomBar = ({
 
   return (
     <div className="rooms">
-      <button className="reset-btn" type="button" onClick={resetGame}>
+      <button className="plain-btn" type="button" onClick={resetGame}>
         Reset
       </button>
 
@@ -80,7 +80,7 @@ export const RoomBar = ({
       </div>
 
       <button
-        className="run-btn"
+        className="plain-btn orange-btn"
         onClick={() => runFromRoom()}
         disabled={!canRun}
       >

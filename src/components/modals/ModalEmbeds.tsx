@@ -1,16 +1,20 @@
 import { Modal } from "./Modal";
 import { DeckModal } from "./DeckModal";
-import { MenuModal } from "./MenuModal";
-import type { PlayState } from "../../utils/types";
+import { AboutModal } from "./AboutModal";
+import type { PlayState, Stats } from "../../utils/types";
 import { WelcomeModal } from "./WelcomeModal";
 import type { Dispatch, SetStateAction } from "react";
+import { HowToPlayModal } from "./HowToPlayModal";
+import { StatsModal } from "./StatsModal";
 
 export const Modals = {
   Welcome: "Welcome",
+  HowToPlay: "How to Play",
+  About: "About and Credits",
+  Stats: "Stats",
+  Deck: "Deck",
   Won: "Won",
   Lost: "Lost",
-  Menu: "Menu",
-  Deck: "Deck",
 } as const;
 
 export type ModalType = (typeof Modals)[keyof typeof Modals];
@@ -18,6 +22,8 @@ export type ModalType = (typeof Modals)[keyof typeof Modals];
 interface ModalEmbedsProps {
   playState: PlayState;
   setPlayState: Dispatch<SetStateAction<PlayState>>;
+  stats: Stats;
+  setStats: Dispatch<SetStateAction<Stats>>;
   resetGame: () => void;
   openModal?: ModalType;
   setOpenModal: (modal: ModalType | undefined) => void;
@@ -26,6 +32,8 @@ interface ModalEmbedsProps {
 export const ModalEmbeds = ({
   playState,
   setPlayState,
+  stats,
+  setStats,
   resetGame,
   openModal,
   setOpenModal,
@@ -42,8 +50,28 @@ export const ModalEmbeds = ({
         />
       )}
 
-      {openModal === Modals.Menu && (
-        <MenuModal
+      {openModal === Modals.HowToPlay && (
+        <HowToPlayModal
+          isOpen={true}
+          onClose={() => {
+            setOpenModal(undefined);
+          }}
+        />
+      )}
+
+      {openModal === Modals.Stats && (
+        <StatsModal
+          isOpen={true}
+          onClose={() => {
+            setOpenModal(undefined);
+          }}
+          stats={stats}
+          setStats={setStats}
+        />
+      )}
+
+      {openModal === Modals.About && (
+        <AboutModal
           isOpen={true}
           onClose={() => {
             setOpenModal(undefined);

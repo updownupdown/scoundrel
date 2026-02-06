@@ -1,17 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import "./css/styles.scss";
 import { useLocalStorage } from "./utils/hooks";
-import { allCards, maxHealth, roomsTotal } from "./utils/constants";
+import { allCards } from "./utils/constants";
 import { arrayShuffle, getValidRoomCards, parseCard } from "./utils/utils";
 import {
   CardTypes,
   defaultPlayState,
+  defaultStats,
   GameStates,
-  type PlayState,
 } from "./utils/types";
-import { HeartIcon } from "./components/icons/Heart";
-import { SwordIcon } from "./components/icons/Sword";
-import clsx from "clsx";
 import { ImagePreloader } from "./utils/ImagePreloader";
 import { Blood } from "./components/Blood";
 import Confetti from "react-confetti-boom";
@@ -21,20 +18,20 @@ import {
   type ModalType,
 } from "./components/modals/ModalEmbeds";
 import { Card } from "./components/Card";
-import { MenuIcon } from "./components/icons/Menu";
 import { animationCleanup } from "./utils/animations";
-import { D20Icon } from "./components/icons/D20";
 import { HealthBar } from "./components/HealthBar";
 import { RoomBar } from "./components/RoomBar";
 import { WeaponsBox } from "./components/WeaponsBox";
 import { DrawDeck } from "./components/DrawDeck";
 import { Actions } from "./components/Actions";
+import { Header } from "./components/Header";
 
 function App() {
   const [playState, setPlayState] = useLocalStorage(
     "playState",
     defaultPlayState,
   );
+  const [stats, setStats] = useLocalStorage("stats", defaultStats);
   const [openModal, setOpenModal] = useState<ModalType | undefined>(undefined);
   const [isAnimating, setIsAnimating] = useState(false);
   const wrapRef = useRef(null);
@@ -50,6 +47,11 @@ function App() {
       isRunning: false,
       usedPotionInRoom: false,
     });
+
+    setStats((prev) => ({
+      ...prev,
+      gamesReset: stats.gamesReset + 1,
+    }));
   }
 
   // Lose game
@@ -75,9 +77,14 @@ function App() {
       gameState: GameStates.Lost,
       score: tally,
     }));
+
+    setStats((prev) => ({
+      ...prev,
+      gamesLost: stats.gamesLost + 1,
+    }));
   }
 
-  // WIn game
+  // Win game
   function gameWin() {
     setOpenModal(Modals.Won);
 
@@ -85,6 +92,11 @@ function App() {
       ...prev,
       gameState: GameStates.Won,
       score: playState.health + playState.bonusScore,
+    }));
+
+    setStats((prev) => ({
+      ...prev,
+      gamesWon: stats.gamesWon + 1,
     }));
   }
 
@@ -160,6 +172,8 @@ function App() {
         resetGame={resetGame}
         openModal={openModal}
         setOpenModal={setOpenModal}
+        stats={stats}
+        setStats={setStats}
       />
 
       {/* Blood and confetti */}
@@ -176,24 +190,7 @@ function App() {
 
       {/* Main */}
       <div className="main">
-        <div className="header">
-          <div className="header__title">
-            <D20Icon />
-            <span className="header__title__scoundrel">Scoundrel</span>
-            <span className="header__title__mode">&nbsp;Classic</span>
-          </div>
-
-          <button
-            className="menu-btn"
-            type="button"
-            onClick={() => {
-              setOpenModal(Modals.Menu);
-            }}
-          >
-            <span>Menu</span>
-            <MenuIcon />
-          </button>
-        </div>
+        <Header setOpenModal={setOpenModal} />
 
         <div className="main__body">
           <HealthBar playState={playState} />
