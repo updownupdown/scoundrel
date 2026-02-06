@@ -1,0 +1,64 @@
+.draw-deck {
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: var(--card-width);
+  aspect-ratio: var(--card-aspect-ratio);
+
+  border-radius: var(--card-border-radius);
+  background: rgba(var(--K950-rgb), 0.6);
+  box-shadow: inset 0 0 15px rgba(var(--black-rgb), 0.5);
+
+  &__text {
+    position: absolute;
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    width: 50px;
+    padding: 12px 0;
+
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    border-radius: 12px;
+    background: rgba(var(--card-beige-rgb), 0.7);
+    box-shadow:
+      0 0 12px var(--card-beige),
+      0 0 24px var(--card-beige);
+
+    font-weight: 600;
+    color: rgba(var(--K950-rgb), 0.8);
+
+    &__peek {
+      font-size: 16px;
+    }
+
+    &__count {
+      font-size: 26px;
+    }
+  }
+
+  &--empty .draw-deck__text__count {
+    background: unset;
+    box-shadow: unset;
+    color: rgba(var(--K400-rgb), 0.4);
+  }
+
+  .card-wrap {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    .card {
+      border: 1px solid rgba(var(--K950-rgb), 0.6);
+    }
+  }
+}

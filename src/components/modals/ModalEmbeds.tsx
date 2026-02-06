@@ -1,10 +1,12 @@
-import { createContext, useContext } from "react";
-import { Modal } from "../components/modals/Modal";
-import { PlayContext } from "./PlayContext";
-import { DeckModal } from "../components/modals/DeckModal";
-import { MenuModal } from "../components/modals/MenuModal";
+import { Modal } from "./Modal";
+import { DeckModal } from "./DeckModal";
+import { MenuModal } from "./MenuModal";
+import type { PlayState } from "../../utils/types";
+import { WelcomeModal } from "./WelcomeModal";
+import type { Dispatch, SetStateAction } from "react";
 
 export const Modals = {
+  Welcome: "Welcome",
   Won: "Won",
   Lost: "Lost",
   Menu: "Menu",
@@ -13,22 +15,33 @@ export const Modals = {
 
 export type ModalType = (typeof Modals)[keyof typeof Modals];
 
-interface IModalContext {
-  openModal: ModalType | undefined;
+interface ModalEmbedsProps {
+  playState: PlayState;
+  setPlayState: Dispatch<SetStateAction<PlayState>>;
+  resetGame: () => void;
+  openModal?: ModalType;
   setOpenModal: (modal: ModalType | undefined) => void;
 }
 
-export const ModalContext = createContext<IModalContext>({
-  openModal: undefined,
-  setOpenModal: () => {},
-});
-
-export const ModalEmbeds = () => {
-  const { state, gameReset } = useContext(PlayContext);
-  const { openModal, setOpenModal } = useContext(ModalContext);
-
+export const ModalEmbeds = ({
+  playState,
+  setPlayState,
+  resetGame,
+  openModal,
+  setOpenModal,
+}: ModalEmbedsProps) => {
   return (
     <>
+      {openModal === Modals.Welcome && (
+        <WelcomeModal
+          isOpen
+          onClose={() => {
+            setOpenModal(undefined);
+          }}
+          setOpenModal={setOpenModal}
+        />
+      )}
+
       {openModal === Modals.Menu && (
         <MenuModal
           isOpen={true}
@@ -44,7 +57,7 @@ export const ModalEmbeds = () => {
           onClose={() => {
             setOpenModal(undefined);
           }}
-          drawDeck={state.drawDeck}
+          drawDeck={playState.drawDeck}
         />
       )}
 
@@ -57,11 +70,11 @@ export const ModalEmbeds = () => {
         >
           <div className="win-lose-text">
             <h2 className="color-green">You won!</h2>
-            <h5>Score: {state.score}</h5>
+            <h5>Score: {playState.score}</h5>
             <button
               className="plain-btn"
               onClick={() => {
-                gameReset();
+                resetGame();
                 setOpenModal(undefined);
               }}
             >
@@ -80,11 +93,11 @@ export const ModalEmbeds = () => {
         >
           <div className="win-lose-text">
             <h2 className="color-red">You died!</h2>
-            <h5>Score: {state.score}</h5>
+            <h5>Score: {playState.score}</h5>
             <button
               className="plain-btn"
               onClick={() => {
-                gameReset();
+                resetGame();
                 setOpenModal(undefined);
               }}
             >
