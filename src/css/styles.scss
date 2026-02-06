@@ -1,7 +1,10 @@
-@use "./constants.scss";
+@use "./colors.scss";
 @use "./media.scss";
 @use "./inputs.scss";
 @use "./main.scss";
+@use "./header.scss";
+@use "./room.scss";
+@use "./health-bar.scss";
 @use "sass:color";
 @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap");
 
@@ -12,7 +15,7 @@
       color.channel($hex, "green", $space: rgb),
       color.channel($hex, "blue", $space: rgb);
   }
-  @each $name, $color in constants.$theme-colors {
+  @each $name, $color in colors.$theme-colors {
     --#{$name}: #{$color};
     --#{$name}-rgb: #{hexToRGB($color)};
   }

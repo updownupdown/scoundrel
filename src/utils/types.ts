@@ -10,6 +10,10 @@ export type PlayState = {
   weapon?: string;
   weaponCards: string[];
   gameState?: GameState;
+  score: number;
+  bonusScore: number;
+  isRunning: boolean;
+  usedPotionInRoom: boolean;
 };
 
 export const GameStates = {
@@ -31,6 +35,10 @@ export const defaultPlayState: PlayState = {
   weaponCards: [],
   health: maxHealth,
   gameState: undefined,
+  score: 0,
+  bonusScore: 0,
+  isRunning: false,
+  usedPotionInRoom: false,
 };
 
 export const CardTypes = {

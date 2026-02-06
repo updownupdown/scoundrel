@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import "./Modal.scss";
 import clsx from "clsx";
-import { CloseIcon } from "./icons/Close";
+import { CloseIcon } from "../icons/Close";
 
 interface Props {
   isOpen: boolean;

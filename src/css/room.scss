@@ -1,0 +1,132 @@
+// Rooms
+.rooms {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+
+  &__center {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+
+    &__count {
+      font-size: 20px;
+      color: var(--card-beige);
+      text-align: center;
+
+      &__current {
+        font-weight: 600;
+      }
+      &__total {
+        opacity: 0.3;
+        font-weight: 300;
+      }
+    }
+
+    &__progress {
+      $progress-height: 8px;
+
+      overflow: hidden;
+      position: relative;
+      height: $progress-height;
+
+      border-radius: calc($progress-height / 2);
+      background: rgba(var(--card-beige-rgb), 0.3);
+
+      .rr {
+        position: absolute;
+        z-index: 2;
+        top: 50%;
+        width: calc($progress-height - 2px);
+        height: calc($progress-height - 2px);
+
+        transform: translate(-50%, -50%);
+
+        border-radius: calc($progress-height / 2);
+        border: 1px solid var(--K900);
+        background: var(--orange);
+      }
+
+      &__bar {
+        transition: 1s ease all;
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        bottom: 0;
+
+        border-radius: calc($progress-height / 2);
+        background: var(--card-beige);
+      }
+    }
+  }
+
+  // Reset button
+  // .reset-btn {}
+
+  // Run button
+  .run-btn {
+    border: 2px solid rgba(var(--orange-rgb), 0.1);
+    background: var(--orange);
+    box-shadow:
+      0 0 4px rgba(var(--orange-rgb), 0.6),
+      1px 2px 10px rgba(var(--orange-rgb), 0.6);
+
+    color: rgba(var(--black-rgb), 0.8);
+    text-shadow: 0 1px 2px rgba(var(--white-rgb), 0.2);
+
+    &:not(:disabled):hover {
+      color: rgba(var(--black-rgb), 0.8);
+
+      background: rgba(var(--orange-rgb), 0.7);
+      border-color: rgba(var(--orange-rgb), 1);
+      box-shadow:
+        0 0 8px rgba(var(--orange-rgb), 0.8),
+        1px 2px 14px rgba(var(--orange-rgb), 0.8);
+    }
+    &:disabled {
+      border-color: rgba(var(--K800-rgb), 0.4);
+      background: transparent;
+      box-shadow: unset;
+      color: rgba(var(--K300-rgb), 0.3);
+    }
+  }
+}
+
+// Room and actions
+.room-and-actions {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: var(--gap);
+
+  > div {
+    display: flex;
+    width: 100%;
+  }
+}
+
+// Room Cards
+.room-cards {
+  position: relative;
+  gap: var(--gap);
+  height: var(--card-height);
+}
+
+// Actions
+.actions {
+  z-index: 10;
+  align-items: center;
+  gap: var(--gap);
+  height: calc((var(--action-button-height) * 2) + var(--action-button-gap));
+
+  &__buttons {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: var(--card-width);
+    height: 100%;
+    gap: var(--action-button-gap);
+  }
+}

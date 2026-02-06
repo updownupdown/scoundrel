@@ -1,9 +1,9 @@
 import React from "react";
-import { Modal } from "./Modal";
-import { allCards } from "../utils/constants";
 import "./DeckModal.scss";
-import { Card } from "./Card";
 import clsx from "clsx";
+import { Modal } from "./Modal";
+import { allCards } from "../../utils/constants";
+import { Card } from "../Card";
 
 interface DeckModalProps {
   isOpen: boolean;
