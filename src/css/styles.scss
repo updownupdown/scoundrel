@@ -191,7 +191,7 @@ button.plain-btn {
   }
 }
 
-@mixin color-btn($name, $color, $text-color, $text-shadow-color) {
+@mixin color-btn($name, $color, $text-color) {
   button.#{$name}-btn {
     border: 2px solid rgba(var(--#{$color}-rgb), 0.1);
     background: var(--#{$color});
@@ -200,7 +200,6 @@ button.plain-btn {
       1px 2px 10px rgba(var(--#{$color}ange-rgb), 0.6);
 
     color: rgba(var(--#{$text-color}-rgb), 0.8);
-    text-shadow: 0 1px 2px rgba(var(--#{$text-shadow-color}-rgb), 0.2);
 
     &:not(:disabled):hover {
       background: rgba(var(--#{$color}-rgb), 0.7);
@@ -218,8 +217,9 @@ button.plain-btn {
   }
 }
 
-@include color-btn("red", "card-red", "white", "black");
-@include color-btn("orange", "orange", "black", "black");
+@include color-btn("red", "card-red", "white");
+@include color-btn("orange", "orange", "black");
+@include color-btn("green", "green", "black");
 
 .color-green {
   color: var(--green);

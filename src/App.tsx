@@ -32,6 +32,10 @@ function App() {
     defaultPlayState,
   );
   const [stats, setStats] = useLocalStorage("stats", defaultStats);
+  const [welcomeModalShown, setWelcomeModalShown] = useLocalStorage(
+    "welcomeModalShown",
+    false,
+  );
   const [openModal, setOpenModal] = useState<ModalType | undefined>(undefined);
   const [isAnimating, setIsAnimating] = useState(false);
   const wrapRef = useRef(null);
@@ -102,6 +106,12 @@ function App() {
 
   // UseEffect
   useEffect(() => {
+    if (welcomeModalShown) {
+      setOpenModal(Modals.Welcome);
+      setWelcomeModalShown(true);
+      return;
+    }
+
     animationCleanup();
 
     if (playState.gameState === undefined) {

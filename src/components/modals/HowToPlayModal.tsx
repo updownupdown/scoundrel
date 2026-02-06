@@ -8,7 +8,7 @@ interface HowToPlayProps {
 
 export const HowToPlayModal = ({ isOpen, onClose }: HowToPlayProps) => {
   return (
-    <Modal title="Menu" isOpen={isOpen} onClose={onClose}>
+    <Modal title="How to Play" isOpen={isOpen} onClose={onClose}>
       <h1>How to Play</h1>
       <p>
         Scoundrel is a single-player dungeon crawler card game. A standard deck
