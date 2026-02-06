@@ -4,10 +4,8 @@ import { useLocalStorage } from "./utils/hooks";
 import { allCards, maxHealth, roomsTotal } from "./utils/constants";
 import { arrayShuffle, getValidRoomCards, parseCard } from "./utils/utils";
 import { CardTypes, defaultPlayState, GameStates } from "./utils/types";
-import { DoorIcon } from "./components/icons/Door";
 import { HeartIcon } from "./components/icons/Heart";
 import { SwordIcon } from "./components/icons/Sword";
-import { StatusBar } from "./components/StatusBar";
 import clsx from "clsx";
 import { ImagePreloader } from "./utils/ImagePreloader";
 import { Blood } from "./components/Blood";
@@ -346,20 +344,34 @@ function App() {
           </button>
 
           <h2>Scoundrel</h2>
-
-          <button className="plain-btn" type="button" onClick={gameReset}>
-            Reset game
-          </button>
         </div>
 
         <div className="main__body">
-          <StatusBar
-            type="health"
-            icon={<HeartIcon />}
-            value={playState.health}
-            total={maxHealth}
-            progress={playState.health / maxHealth}
-          />
+          <div
+            className={clsx(
+              "health-bar",
+              playState.health / maxHealth < 0.5
+                ? playState.health / maxHealth < 0.25
+                  ? "health-bar--red"
+                  : "health-bar--orange"
+                : "health-bar--green",
+            )}
+          >
+            <div className="health-bar__icon">{<HeartIcon />}</div>
+            <div
+              className="health-bar__progress"
+              style={{
+                width: `${((playState.health + 3) / (maxHealth + 3)) * 100}%`,
+              }}
+            />
+            <span className="health-bar__text">
+              <span>
+                {playState.health}
+
+                <span className="pale"> / {maxHealth ?? "--"}</span>
+              </span>
+            </span>
+          </div>
 
           <div className="deck-and-weapons">
             <div className="weapons">
@@ -418,13 +430,41 @@ function App() {
             </div>
           </div>
 
-          <StatusBar
-            type="room"
-            icon={<DoorIcon />}
-            value={playState.currentRoom ?? 1}
-            total={roomsTotal}
-            progress={(playState.currentRoom ?? 1) / roomsTotal}
-          >
+          <div className="rooms">
+            <button className="reset-btn" type="button" onClick={gameReset}>
+              Reset
+            </button>
+
+            <div className="rooms__center">
+              <div className="rooms__center__count">
+                <span className="rooms__center__count__current">
+                  {playState.currentRoom}
+                </span>
+                <span className="rooms__center__count__total">
+                  {" "}
+                  / {roomsTotal}
+                </span>
+              </div>
+
+              <div className="rooms__center__progress">
+                {playState.ranRooms.map((rr) => {
+                  return (
+                    <div
+                      key={rr}
+                      className="rr"
+                      style={{ left: `${((rr - 0.5) / roomsTotal) * 100}%` }}
+                    />
+                  );
+                })}
+                <div
+                  className="rooms__center__progress__bar"
+                  style={{
+                    width: `${((playState.currentRoom ?? 1) / roomsTotal) * 100}%`,
+                  }}
+                ></div>
+              </div>
+            </div>
+
             <button
               className="run-btn"
               onClick={() => runFromRoom()}
@@ -432,7 +472,7 @@ function App() {
             >
               Run
             </button>
-          </StatusBar>
+          </div>
 
           <div className="room-and-actions">
             <div className="room-cards">
