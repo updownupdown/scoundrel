@@ -34,7 +34,12 @@ export const DeckModal = ({
   ];
 
   return (
-    <Modal title="Draw Deck" isOpen={isOpen} onClose={onClose}>
+    <Modal
+      title="Draw Deck"
+      isOpen={isOpen}
+      onClose={onClose}
+      modalClass="deck-modal"
+    >
       <div className="peek-deck">
         {suits.map((suit) => {
           return (

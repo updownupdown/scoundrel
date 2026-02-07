@@ -2,7 +2,11 @@
 .rooms {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: var(--gap);
+
+  button {
+    width: var(--card-width);
+  }
 
   &__center {
     display: flex;

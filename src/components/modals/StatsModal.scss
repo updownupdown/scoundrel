@@ -4,6 +4,27 @@
   gap: 30px;
   margin-bottom: 50px;
 
+  &__general {
+    font-size: 20px;
+    font-weight: 300;
+    color: var(--K400);
+
+    table {
+      width: 100%;
+
+      th:not(:first-child),
+      td:not(:first-child) {
+        text-align: right;
+      }
+
+      tbody {
+        td:not(:first-child) {
+          font-weight: 600;
+        }
+      }
+    }
+  }
+
   .stats-bar {
     $bar-height: 40px;
 
@@ -50,17 +71,6 @@
     }
   }
 
-  &__total-games {
-    font-size: 20px;
-    font-weight: 300;
-    color: var(--K400);
-
-    b {
-      font-weight: 700;
-      color: var(--white);
-    }
-  }
-
   &__games {
     display: flex;
     width: 100%;
@@ -76,8 +86,8 @@
 
       span {
         &:nth-child(1) {
-          font-size: 16px;
-          font-weight: 400;
+          font-size: 18px;
+          font-weight: 500;
         }
         &:nth-child(2) {
           font-size: 28px;

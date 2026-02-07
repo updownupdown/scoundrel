@@ -52,69 +52,69 @@
   }
   &--orange .health-bar__icon svg {
     animation-name: beat-orange;
-    animation-duration: 1s;
+    animation-duration: 0.9s;
   }
   &--red .health-bar__icon svg {
     animation-name: beat-red;
-    animation-duration: 0.8s;
+    animation-duration: 0.75s;
   }
 
   @keyframes beat-green {
     0% {
-      transform: scale(0.8);
+      transform: scale(1);
     }
     15% {
-      transform: scale(0.98);
+      transform: scale(0.9);
     }
     30% {
-      transform: scale(0.75);
+      transform: scale(0.98);
     }
     50% {
-      transform: scale(1.08);
+      transform: scale(0.8);
     }
     100% {
-      transform: scale(0.8);
+      transform: scale(1);
     }
   }
 
   @keyframes beat-orange {
     0% {
-      transform: scale(0.8);
-    }
-    15% {
       transform: scale(1);
     }
+    15% {
+      transform: scale(0.85);
+    }
     30% {
-      transform: scale(0.75);
+      transform: scale(0.98);
     }
     50% {
-      transform: scale(1.14);
+      transform: scale(0.78);
     }
     100% {
-      transform: scale(0.8);
+      transform: scale(1);
     }
   }
 
   @keyframes beat-red {
     0% {
-      transform: scale(0.8);
+      transform: scale(1);
     }
     15% {
-      transform: scale(1.05);
+      transform: scale(0.8);
     }
     30% {
-      transform: scale(0.8);
+      transform: scale(1);
     }
     50% {
-      transform: scale(1.2);
+      transform: scale(0.7);
     }
     100% {
-      transform: scale(0.8);
+      transform: scale(1);
     }
   }
 
   &__progress {
-    transition: 1.5s ease all;
+    transition: 0.5s ease all;
 
     position: absolute;
     top: 0;

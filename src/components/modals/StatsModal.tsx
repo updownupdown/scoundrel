@@ -21,9 +21,8 @@ export const StatsModal = ({
 }: StatsModalProps) => {
   const [resetPressesLeft, setResetPressesLeft] = useState(resetPressRequired);
 
-  const totalGames = stats.gamesWon + stats.gamesLost + stats.gamesReset;
-
   function getPerc(num: number) {
+    const totalGames = stats.gamesWon + stats.gamesLost + stats.gamesReset;
     if (totalGames === 0) return "0%";
     return `${Math.round((num / totalGames) * 100)}%`;
   }
@@ -31,10 +30,6 @@ export const StatsModal = ({
   return (
     <Modal title="Stats" isOpen={isOpen} onClose={onClose}>
       <div className="stats">
-        <div className="stats__total-games">
-          Games played: <b>{totalGames}</b>
-        </div>
-
         <div className="stats-bar">
           <div
             className="stats-bar__bar stats-bar__bar--green"
@@ -63,6 +58,46 @@ export const StatsModal = ({
             <span>Reset: {stats.gamesReset}</span>
             <span>{getPerc(stats.gamesReset)}</span>
           </span>
+        </div>
+
+        <div className="stats__general">
+          <table>
+            <thead>
+              <tr>
+                <th>&nbsp;</th>
+                <th>
+                  With
+                  <br />
+                  resets
+                </th>
+                <th>
+                  Without
+                  <br />
+                  resets
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Average last room reached</td>
+                <td>
+                  {stats.avgLastRoomWithResets
+                    ? Math.round(stats.avgLastRoomWithResets * 10) / 10
+                    : "N/A"}
+                </td>
+                <td>
+                  {stats.avgLastRoomWithoutResets
+                    ? Math.round(stats.avgLastRoomWithoutResets * 10) / 10
+                    : "N/A"}
+                </td>
+              </tr>
+              <tr>
+                <td>Total games played</td>
+                <td>{stats.gamesWon + stats.gamesLost + stats.gamesReset}</td>
+                <td>{stats.gamesWon + stats.gamesLost}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 

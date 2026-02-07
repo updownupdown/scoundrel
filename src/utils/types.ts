@@ -20,12 +20,16 @@ export type Stats = {
   gamesLost: number;
   gamesWon: number;
   gamesReset: number;
+  avgLastRoomWithoutResets?: number;
+  avgLastRoomWithResets?: number;
 };
 
-export const defaultStats = {
+export const defaultStats: Stats = {
   gamesLost: 0,
   gamesWon: 0,
   gamesReset: 0,
+  avgLastRoomWithoutResets: undefined,
+  avgLastRoomWithResets: undefined,
 };
 
 export const GameStates = {

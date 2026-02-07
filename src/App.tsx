@@ -40,8 +40,34 @@ function App() {
   const [isAnimating, setIsAnimating] = useState(false);
   const wrapRef = useRef(null);
 
+  function newAvg(
+    currentAverage: number | undefined,
+    currentCount: number | undefined,
+    newValue: number,
+  ) {
+    if (!currentAverage || !currentCount) return newValue;
+    return (currentAverage * currentCount + newValue) / (currentCount + 1);
+  }
+
+  function getLastRoomStats() {
+    return {
+      avgLastRoomWithoutResets: newAvg(
+        stats.avgLastRoomWithoutResets,
+        stats.gamesWon + stats.gamesLost,
+        playState.currentRoom ?? 1,
+      ),
+      avgLastRoomWithResets: newAvg(
+        stats.avgLastRoomWithResets,
+        stats.gamesWon + stats.gamesLost + stats.gamesReset,
+        playState.currentRoom ?? 1,
+      ),
+    };
+  }
+
   // Reset game
   function resetGame() {
+    const { avgLastRoomWithResets } = getLastRoomStats();
+
     setPlayState({
       ...defaultPlayState,
       drawDeck: arrayShuffle(allCards),
@@ -55,6 +81,7 @@ function App() {
     setStats((prev) => ({
       ...prev,
       gamesReset: stats.gamesReset + 1,
+      avgLastRoomWithResets,
     }));
   }
 
@@ -76,6 +103,9 @@ function App() {
       }
     }
 
+    const { avgLastRoomWithoutResets, avgLastRoomWithResets } =
+      getLastRoomStats();
+
     setPlayState((prev) => ({
       ...prev,
       gameState: GameStates.Lost,
@@ -85,12 +115,17 @@ function App() {
     setStats((prev) => ({
       ...prev,
       gamesLost: stats.gamesLost + 1,
+      avgLastRoomWithoutResets,
+      avgLastRoomWithResets,
     }));
   }
 
   // Win game
   function gameWin() {
     setOpenModal(Modals.Won);
+
+    const { avgLastRoomWithoutResets, avgLastRoomWithResets } =
+      getLastRoomStats();
 
     setPlayState((prev) => ({
       ...prev,
@@ -101,23 +136,27 @@ function App() {
     setStats((prev) => ({
       ...prev,
       gamesWon: stats.gamesWon + 1,
+      avgLastRoomWithoutResets,
+      avgLastRoomWithResets,
     }));
   }
 
   // UseEffect
   useEffect(() => {
-    if (welcomeModalShown) {
-      setOpenModal(Modals.Welcome);
-      setWelcomeModalShown(true);
-      return;
-    }
-
     animationCleanup();
 
     if (playState.gameState === undefined) {
       // Initial game
       resetGame();
-    } else if (playState.gameState === GameStates.InProgress) {
+    }
+
+    if (!welcomeModalShown) {
+      setOpenModal(Modals.Welcome);
+      setWelcomeModalShown(true);
+      return;
+    }
+
+    if (playState.gameState === GameStates.InProgress) {
       if (playState.health <= 0) {
         // Trigger lost
         gameLose();
