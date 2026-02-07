@@ -1,0 +1,11 @@
+Achievements:
+- 500 games played
+- 100 games played
+- 100 games won
+- Royal flush, flush
+
+Traits:
+pick one, has buffs
+- extra health when weapon stack gets to 5 (killing high)
+- minus 2 damage when killing aces by hand (dragon slayer)
+- minus 1 damange when killing kings of queens by hand (regicide)
