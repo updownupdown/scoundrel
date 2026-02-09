@@ -71,23 +71,24 @@ export const Actions = ({
 
     const { cardValue } = parseCard(card);
 
-    let health = dungeonState.health + cardValue;
-    if (health > maxHealth) health = maxHealth;
-
-    // Bonus score if applicable
+    let newHealth = dungeonState.health;
     let bonusScore = 0;
 
-    if (
-      dungeonState.drawDeck.length === 0 &&
-      dungeonState.roomCards.length === 0 &&
-      dungeonState.health === maxHealth
-    ) {
-      bonusScore = cardValue;
+    if (!dungeonState.usedPotionInRoom) {
+      newHealth = Math.min(dungeonState.health + cardValue, maxHealth);
+
+      if (
+        dungeonState.drawDeck.length === 0 &&
+        dungeonState.roomCards.length === 0 &&
+        dungeonState.health === maxHealth
+      ) {
+        bonusScore = cardValue;
+      }
     }
 
     setDungeonState((prev) => ({
       ...prev,
-      health,
+      health: newHealth,
       usedPotionInRoom: true,
       bonusScore: bonusScore,
       // Discard from room

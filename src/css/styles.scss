@@ -195,6 +195,10 @@ button {
         1px 2px 8px rgba(var(--K950-rgb), 0.1);
 
       color: rgba(var(--K100-rgb), 0.2);
+
+      svg {
+        fill: rgba(var(--K100-rgb), 0.2);
+      }
     }
 
     &:not(:disabled) {
@@ -304,6 +308,9 @@ button {
 }
 .color-orange {
   color: var(--orange);
+}
+.color-gold {
+  color: var(--gold);
 }
 
 table {

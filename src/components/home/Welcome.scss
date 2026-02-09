@@ -10,6 +10,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    gap: 4px;
 
     svg {
       margin-right: 4px;
@@ -32,9 +33,19 @@
     }
 
     &__scoundrel {
-      color: var(--card-beige);
+      display: flex;
+      gap: 4px;
+
       font-size: 40px;
-      font-weight: 650;
+
+      &__scoundrel {
+        color: var(--card-beige);
+        font-weight: 400;
+      }
+      &__rogue {
+        color: var(--red);
+        font-weight: 600;
+      }
     }
   }
 

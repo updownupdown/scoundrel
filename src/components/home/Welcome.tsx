@@ -17,7 +17,12 @@ export const Welcome = ({ setPlayerState }: WelcomeProps) => {
     <div className="welcome">
       <div className="welcome__title">
         <D20Icon />
-        <span className="welcome__title__scoundrel">Scoundrel</span>
+        <span className="welcome__title__scoundrel">
+          <span className="welcome__title__scoundrel__scoundrel">
+            Scoundrel
+          </span>
+          <span className="welcome__title__scoundrel__rogue">Rogue</span>
+        </span>
       </div>
 
       <div className="welcome__how-to-play">

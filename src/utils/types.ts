@@ -2,6 +2,9 @@ import type React from "react";
 import { CoinIcon } from "../components/icons/Coin";
 import { maxHealth } from "./constants";
 import { PotionIcon } from "../components/icons/Potion";
+import { HomeIcon } from "../components/icons/Home";
+import { ShopIcon } from "../components/icons/Shop";
+import { CharacterIcon } from "../components/icons/Character";
 
 export const GameStates = {
   Welcome: "Welcome",
@@ -19,6 +22,12 @@ export const HomeTabs = {
 } as const;
 
 export type HomeTab = (typeof HomeTabs)[keyof typeof HomeTabs];
+
+export const HomeTabIcon: Record<HomeTab, React.ComponentType<any>> = {
+  [HomeTabs.Home]: HomeIcon,
+  [HomeTabs.Shop]: ShopIcon,
+  [HomeTabs.Character]: CharacterIcon,
+};
 
 export const CardTypes = {
   Potion: "Potion",
@@ -75,6 +84,7 @@ export type DungeonState = {
   scoreEndless: number;
   isRunning: boolean;
   usedPotionInRoom: boolean;
+  foundGold: number;
 };
 
 export const defaultDungeonState: DungeonState = {
@@ -92,6 +102,7 @@ export const defaultDungeonState: DungeonState = {
   scoreEndless: 0,
   isRunning: false,
   usedPotionInRoom: false,
+  foundGold: 0,
 };
 
 export type PlayerState = {

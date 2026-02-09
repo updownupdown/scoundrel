@@ -27,6 +27,7 @@ import { currentVersion, emptyCardSymbol } from "./utils/constants";
 import { Welcome } from "./components/home/Welcome";
 import { Blood } from "./components/misc/Blood";
 import Confetti from "react-confetti-boom";
+import { CoinIcon } from "./components/icons/Coin";
 
 function App() {
   const [initialized, setInitialized] = useState(false);
@@ -140,6 +141,15 @@ function App() {
       // ========================= //
     }
   }, [dungeonState, initialized]);
+
+  const PlusCoins = () => {
+    return (
+      <div className="plus-coins">
+        <span>5</span>
+        <CoinIcon />
+      </div>
+    );
+  };
 
   return (
     <div

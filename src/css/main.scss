@@ -84,3 +84,17 @@ $width-cutoff: 420px;
   pointer-events: none;
   z-index: 100;
 }
+
+hr {
+  width: 100%;
+  height: 1px;
+
+  border: unset;
+  background: linear-gradient(
+    to right,
+    rgba(var(--white-rgb), 0.06) 0%,
+    rgba(var(--white-rgb), 0.2) 40%,
+    rgba(var(--white-rgb), 0.2) 80%,
+    rgba(var(--white-rgb), 0.06) 100%
+  );
+}

@@ -10,7 +10,9 @@ import type { ModalType } from "./ModalEmbeds";
 import "./DungeonEndModal.scss";
 import { BackpackIcon } from "../icons/Backpack";
 import { HomeIcon } from "../icons/Home";
-import { coinsPerDungeonEnd } from "../../utils/constants";
+import { DoorIcon } from "../icons/Door";
+import { HealthBar } from "../dungeon/HealthBar";
+import { CoinIcon } from "../icons/Coin";
 
 interface DungeonEndProps {
   dungeonState: DungeonState;
@@ -47,15 +49,23 @@ export const DungeonEndModal = ({
   return (
     <Modal isOpen onClose={() => {}} modalClass="dungeon-end-modal small-modal">
       <div className="dungeon-end">
-        <h4>You've reached the end of dungeon {dungeonState.currentDungeon}</h4>
+        <div className="dungeon-end__title">
+          <span className="dungeon-end__title__small">
+            You've reached the end of
+          </span>
+          <span className="dungeon-end__title__large">
+            Dungeon {dungeonState.currentDungeon}
+          </span>
+          <div className="dungeon-end__title__score">
+            <span>Score: {dungeonState.score}</span>
+          </div>
+        </div>
 
-        <p>You gain {coinsPerDungeonEnd} coins</p>
-
-        <h5>
-          Health: {dungeonState.health}
-          <br />
-          Score: {dungeonState.score}
-        </h5>
+        <div className="dungeon-end__treasure">
+          <span className="dungeon-end__treasure__found">You found:</span>
+          <span className="color-gold">{dungeonState.foundGold}</span>
+          <CoinIcon />
+        </div>
 
         <table className="inventory-table inventory-table--dungeon-end">
           <thead>
@@ -76,23 +86,33 @@ export const DungeonEndModal = ({
           </tbody>
         </table>
 
-        <button
-          className="plain-btn green-btn"
-          onClick={() => {
-            dungeonExit();
-          }}
-        >
-          Go home (and keep loot)
-        </button>
+        <HealthBar dungeonState={dungeonState} />
 
-        <button
-          className="plain-btn red-btn"
-          onClick={() => {
-            dungeonContinue();
-          }}
-        >
-          Continue to Dungeon {dungeonState.currentDungeon + 1}
-        </button>
+        <div className="dungeon-end__choices">
+          <button
+            className="plain-btn green-btn"
+            onClick={() => {
+              dungeonExit();
+            }}
+          >
+            <HomeIcon />
+            <b>Go home</b>
+            <span>and keep loot</span>
+          </button>
+
+          <button
+            className="plain-btn red-btn"
+            onClick={() => {
+              dungeonContinue();
+            }}
+          >
+            <DoorIcon />
+            <b>Continue</b>
+            <span>to Dungeon {dungeonState.currentDungeon + 1}</span>
+          </button>
+        </div>
+
+        <div className="dungeon-end__tips">Deeper dungeons have more gold.</div>
       </div>
     </Modal>
   );

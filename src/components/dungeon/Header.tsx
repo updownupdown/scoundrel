@@ -42,7 +42,7 @@ export const Header = ({ setOpenModal }: HeaderProps) => {
       <div className="header__title">
         <D20Icon />
         <span className="header__title__scoundrel">Scoundrel</span>
-        {/* <span className="header__title__mode">Classic</span> */}
+        <span className="header__title__mode">Rogue</span>
       </div>
 
       <div ref={menuWrapRef} className="menu-wrap">

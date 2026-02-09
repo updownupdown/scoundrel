@@ -15,7 +15,7 @@ import {
   newAvg,
   parseCard,
 } from "./utils";
-import { coinsPerDungeonEnd, roomsTotal } from "./constants";
+import { roomsTotal } from "./constants";
 
 interface DungeonProps {
   dungeonState: DungeonState;
@@ -112,9 +112,12 @@ export const useDungeon = ({
 
   // Dungeon - REACH END
   function dungeonEnd() {
+    const goldFound = dungeonState.currentDungeon;
+
     setDungeonState((prev) => ({
       ...prev,
       score: dungeonState.score + dungeonState.health + dungeonState.bonusScore,
+      foundGold: goldFound,
     }));
 
     setPlayerState((prev) => ({
@@ -122,8 +125,7 @@ export const useDungeon = ({
       gameState: GameStates.DungeonEnd,
       inventoryPack: {
         ...playerState.inventoryPack,
-        [ItemTypes.Coin]:
-          playerState.inventoryPack[ItemTypes.Coin] + coinsPerDungeonEnd,
+        [ItemTypes.Coin]: playerState.inventoryPack[ItemTypes.Coin] + goldFound,
       },
     }));
   }

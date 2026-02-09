@@ -1,4 +1,5 @@
 import {
+  HomeTabIcon,
   HomeTabs,
   ItemCost,
   ItemIcon,
@@ -184,20 +185,21 @@ export const Home = ({
         >
           {playerState.lastGameWon === true && (
             <>
-              <h2>You made it out of dungeon {dungeonState.currentDungeon}!</h2>
-              <h5>Score: {dungeonState.score}</h5>
+              <h2>You made it out!</h2>
+              <div className="home__results__stats">
+                <span>Dungeon: {dungeonState.currentDungeon}</span>
+                <span>Score: {dungeonState.score}</span>
+              </div>
             </>
           )}
           {playerState.lastGameWon === false && (
             <>
               <h2>You died!</h2>
-              <h5>
-                Dungeon: {dungeonState.currentDungeon}
-                <br />
-                Room: {dungeonState.currentRoom}
-                <br />
-                Score: {dungeonState.score}
-              </h5>
+              <div className="home__results__stats">
+                <span>Dungeon: {dungeonState.currentDungeon}</span>
+                <span>Room: {dungeonState.currentRoom}</span>
+                <span>Score: {dungeonState.score}</span>
+              </div>
             </>
           )}
         </div>
@@ -206,13 +208,16 @@ export const Home = ({
       <div className="home__tabs-content">
         <div className="home__tabs-content__tabs">
           {Object.values(HomeTabs).map((tab) => {
+            const Icon = HomeTabIcon[tab];
+
             return (
               <button
                 key={tab}
                 onClick={() => setHomeTab(tab)}
                 disabled={homeTab === tab}
               >
-                {tab}
+                <Icon />
+                <span>{tab}</span>
               </button>
             );
           })}
