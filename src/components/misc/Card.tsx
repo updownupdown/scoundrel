@@ -4,7 +4,7 @@ import "./Card.scss";
 import { emptyCardSymbol } from "../../utils/constants";
 
 interface CardProps {
-  card: string;
+  card: string | undefined;
   style?: React.CSSProperties;
 }
 
@@ -18,7 +18,7 @@ export const Card = ({ card, style }: CardProps) => {
       )}
       style={style ?? undefined}
     >
-      {card !== emptyCardSymbol && <img src={`./cards/${card}.svg`} />}
+      {card && card !== emptyCardSymbol && <img src={`./cards/${card}.svg`} />}
     </div>
   );
 };
