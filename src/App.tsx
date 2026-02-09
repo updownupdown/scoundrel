@@ -1,274 +1,241 @@
 import { useEffect, useRef, useState } from "react";
 import "./css/styles.scss";
 import { useLocalStorage } from "./utils/hooks";
-import { allCards } from "./utils/constants";
-import { arrayShuffle, getValidRoomCards, parseCard } from "./utils/utils";
+import { getValidRoomCards } from "./utils/utils";
 import {
-  CardTypes,
-  defaultPlayState,
-  defaultStats,
+  defaultDungeonState,
+  defaultPlayerState,
   GameStates,
 } from "./utils/types";
 import { ImagePreloader } from "./utils/ImagePreloader";
-import { Blood } from "./components/Blood";
-import Confetti from "react-confetti-boom";
 import {
   ModalEmbeds,
   Modals,
   type ModalType,
 } from "./components/modals/ModalEmbeds";
-import { Card } from "./components/Card";
 import { animationCleanup } from "./utils/animations";
-import { HealthBar } from "./components/HealthBar";
-import { RoomBar } from "./components/RoomBar";
-import { WeaponsBox } from "./components/WeaponsBox";
-import { DrawDeck } from "./components/DrawDeck";
-import { Actions } from "./components/Actions";
-import { Header } from "./components/Header";
+import { HealthBar } from "./components/dungeon/HealthBar";
+import { RoomBar } from "./components/dungeon/RoomBar";
+import { WeaponsBox } from "./components/dungeon/WeaponsBox";
+import { DrawDeck } from "./components/dungeon/DrawDeck";
+import { Actions } from "./components/dungeon/Actions";
+import { Header } from "./components/dungeon/Header";
+import { useDungeon } from "./utils/dungeonFunctions";
+import { Card } from "./components/misc/Card";
+import { Home } from "./components/home/Home";
+import { currentVersion, emptyCardSymbol } from "./utils/constants";
+import { Welcome } from "./components/home/Welcome";
+import { Blood } from "./components/misc/Blood";
+import Confetti from "react-confetti-boom";
 
 function App() {
-  const [playState, setPlayState] = useLocalStorage(
-    "playState",
-    defaultPlayState,
+  const [initialized, setInitialized] = useState(false);
+  const [versionTag, setVersionTag] = useLocalStorage<number | undefined>(
+    "versionTag",
+    undefined,
   );
-  const [stats, setStats] = useLocalStorage("stats", defaultStats);
-  const [welcomeModalShown, setWelcomeModalShown] = useLocalStorage(
-    "welcomeModalShown",
-    false,
+  const [dungeonState, setDungeonState] = useLocalStorage(
+    "dungeonState",
+    defaultDungeonState,
+  );
+  const [playerState, setPlayerState] = useLocalStorage(
+    "playerState",
+    defaultPlayerState,
   );
   const [openModal, setOpenModal] = useState<ModalType | undefined>(undefined);
   const [isAnimating, setIsAnimating] = useState(false);
   const wrapRef = useRef(null);
 
-  function newAvg(
-    currentAverage: number | undefined,
-    currentCount: number | undefined,
-    newValue: number,
-  ) {
-    if (!currentAverage || !currentCount) return newValue;
-    return (currentAverage * currentCount + newValue) / (currentCount + 1);
-  }
+  const {
+    gameStart,
+    gameLose,
+    dungeonEnd,
+    dungeonContinue,
+    dungeonExit,
+    openInventory,
+  } = useDungeon({
+    playerState,
+    setPlayerState,
+    dungeonState,
+    setDungeonState,
+    setOpenModal,
+  });
 
-  function getLastRoomStats() {
-    return {
-      avgLastRoomWithoutResets: newAvg(
-        stats.avgLastRoomWithoutResets,
-        stats.gamesWon + stats.gamesLost,
-        playState.currentRoom ?? 1,
-      ),
-      avgLastRoomWithResets: newAvg(
-        stats.avgLastRoomWithResets,
-        stats.gamesWon + stats.gamesLost + stats.gamesReset,
-        playState.currentRoom ?? 1,
-      ),
-    };
-  }
-
-  // Reset game
-  function resetGame() {
-    const { avgLastRoomWithResets } = getLastRoomStats();
-
-    setPlayState({
-      ...defaultPlayState,
-      drawDeck: arrayShuffle(allCards),
-      gameState: GameStates.InProgress,
-      score: 0,
-      bonusScore: 0,
-      isRunning: false,
-      usedPotionInRoom: false,
-    });
-
-    setStats((prev) => ({
-      ...prev,
-      gamesReset: stats.gamesReset + 1,
-      avgLastRoomWithResets,
-    }));
-  }
-
-  // Lose game
-  function gameLose() {
-    setOpenModal(Modals.Lost);
-
-    const remainingCards = getValidRoomCards([
-      ...playState.drawDeck,
-      ...playState.roomCards,
-    ]);
-    let tally = 0;
-
-    for (let i = 0; i < remainingCards.length; i++) {
-      const { cardType, cardValue } = parseCard(remainingCards[i]);
-
-      if (cardType === CardTypes.Monster) {
-        tally -= cardValue;
-      }
-    }
-
-    const { avgLastRoomWithoutResets, avgLastRoomWithResets } =
-      getLastRoomStats();
-
-    setPlayState((prev) => ({
-      ...prev,
-      gameState: GameStates.Lost,
-      score: tally,
-    }));
-
-    setStats((prev) => ({
-      ...prev,
-      gamesLost: stats.gamesLost + 1,
-      avgLastRoomWithoutResets,
-      avgLastRoomWithResets,
-    }));
-  }
-
-  // Win game
-  function gameWin() {
-    setOpenModal(Modals.Won);
-
-    const { avgLastRoomWithoutResets, avgLastRoomWithResets } =
-      getLastRoomStats();
-
-    setPlayState((prev) => ({
-      ...prev,
-      gameState: GameStates.Won,
-      score: playState.health + playState.bonusScore,
-    }));
-
-    setStats((prev) => ({
-      ...prev,
-      gamesWon: stats.gamesWon + 1,
-      avgLastRoomWithoutResets,
-      avgLastRoomWithResets,
-    }));
-  }
-
-  // UseEffect
+  // INIT
   useEffect(() => {
+    if (initialized) return;
+
+    // Reset if not same version
+    if (versionTag === currentVersion) {
+      setInitialized(true);
+    } else {
+      setDungeonState(defaultDungeonState);
+      setPlayerState(defaultPlayerState);
+      setVersionTag(currentVersion);
+      setInitialized(true);
+    }
+  }, [versionTag, initialized]);
+
+  // PLAYER GAME STATE change
+  useEffect(() => {
+    if (!initialized) return;
+
+    if (playerState.gameState === GameStates.DungeonEnd) {
+      setOpenModal(Modals.DungeonEnd);
+    }
+  }, [playerState.gameState, initialized]);
+
+  // DUNGEON state change
+  useEffect(() => {
+    if (!initialized) return;
+
     animationCleanup();
 
-    if (playState.gameState === undefined) {
-      // Initial game
-      resetGame();
-    }
+    if (playerState.gameState !== GameStates.InProgress) return;
 
-    if (!welcomeModalShown) {
-      setOpenModal(Modals.Welcome);
-      setWelcomeModalShown(true);
+    if (dungeonState.health <= 0) {
+      // Trigger lost
+      gameLose();
       return;
     }
 
-    if (playState.gameState === GameStates.InProgress) {
-      if (playState.health <= 0) {
-        // Trigger lost
-        gameLose();
-        return;
+    const validRoomCards = getValidRoomCards(dungeonState.roomCards);
+
+    if (dungeonState.drawDeck.length === 0 && validRoomCards.length === 0) {
+      // Reach dungeon end
+      dungeonEnd();
+    } else if (
+      dungeonState.drawDeck.length !== 0 &&
+      validRoomCards.length <= 1
+    ) {
+      // ===== Populate room ===== //
+      const lastRoomCard = getValidRoomCards(dungeonState.roomCards);
+      const neededCards = lastRoomCard.length ? 3 : 4;
+      const newRoomCards: string[] = [
+        ...dungeonState.drawDeck.slice(0, neededCards),
+      ];
+
+      // Pad the card set to preserve last card position in last room
+      while (newRoomCards.length < neededCards) {
+        newRoomCards.push(emptyCardSymbol);
       }
 
-      const validRoomCards = getValidRoomCards(playState.roomCards);
-
-      if (playState.drawDeck.length === 0 && validRoomCards.length === 0) {
-        // Trigger win
-        gameWin();
-      } else if (
-        playState.drawDeck.length !== 0 &&
-        validRoomCards.length <= 1
-      ) {
-        // Populate room
-        const lastRoomCard = getValidRoomCards(playState.roomCards);
-        const neededCards = lastRoomCard.length ? 3 : 4;
-        const newRoomCards: (string | undefined)[] = [
-          ...playState.drawDeck.slice(0, neededCards),
-        ];
-
-        // Pad the card set to preserve last card position in last room
-        while (newRoomCards.length < neededCards) {
-          newRoomCards.push(undefined);
-        }
-
-        // Keep last room card in the same position
-        if (lastRoomCard.length) {
-          const indexOfLastRoomCard = playState.roomCards.indexOf(
-            lastRoomCard[0],
-          );
-          newRoomCards.splice(indexOfLastRoomCard, 0, lastRoomCard[0]);
-        }
-
-        setPlayState((prev) => ({
-          ...prev,
-          drawDeck: [...playState.drawDeck.slice(neededCards)],
-          roomCards: newRoomCards,
-          currentRoom: playState.isRunning
-            ? playState.currentRoom
-            : (playState.currentRoom ?? 0) + 1,
-          isRunning: false,
-          usedPotionInRoom: false,
-        }));
+      // Keep last room card in the same position
+      if (lastRoomCard.length) {
+        const indexOfLastRoomCard = dungeonState.roomCards.indexOf(
+          lastRoomCard[0],
+        );
+        newRoomCards.splice(indexOfLastRoomCard, 0, lastRoomCard[0]);
       }
+
+      setDungeonState((prev) => ({
+        ...prev,
+        drawDeck: [...dungeonState.drawDeck.slice(neededCards)],
+        roomCards: newRoomCards,
+        currentRoom:
+          dungeonState.currentRoom + (dungeonState.isRunning ? 0 : 1),
+        isRunning: false,
+        usedPotionInRoom: false,
+      }));
+      // ========================= //
     }
-  }, [playState]);
+  }, [dungeonState, initialized]);
 
   return (
     <div
       ref={wrapRef}
-      className={`wrap game-state--${playState.gameState?.toLowerCase() ?? "na"}`}
+      className={`wrap game-state--${playerState.gameState?.toLowerCase() ?? "na"}`}
     >
       {/* Image Preloader */}
       <ImagePreloader />
 
       {/* Modals */}
       <ModalEmbeds
-        playState={playState}
-        setPlayState={setPlayState}
-        resetGame={resetGame}
         openModal={openModal}
+        dungeonState={dungeonState}
+        setDungeonState={setDungeonState}
         setOpenModal={setOpenModal}
-        stats={stats}
-        setStats={setStats}
+        playerState={playerState}
+        setPlayerState={setPlayerState}
+        gameStart={gameStart}
+        dungeonContinue={dungeonContinue}
+        dungeonExit={dungeonExit}
+        openInventory={openInventory}
       />
 
-      {/* Blood and confetti */}
-      {playState.gameState === GameStates.Lost && <Blood />}
-      {playState.gameState === GameStates.Won && (
-        <div className="confetti">
-          <Confetti
-            mode="fall"
-            particleCount={80}
-            colors={["#b43733", "#da8037", "#52a3c4", "#8956b9", "#4ea069"]}
-          />
-        </div>
-      )}
+      {/* Blood */}
+      {playerState.gameState === GameStates.Home &&
+        playerState.lastGameWon === false && <Blood />}
 
-      {/* Main */}
+      {playerState.gameState === GameStates.Home &&
+        playerState.lastGameWon === true && (
+          <div className="confetti">
+            <Confetti
+              mode="boom"
+              y={0.35}
+              particleCount={80}
+              colors={["#b43733", "#da8037", "#52a3c4", "#8956b9", "#4ea069"]}
+            />
+          </div>
+        )}
+
       <div className="main">
         <Header setOpenModal={setOpenModal} />
 
         <div className="main__body">
-          <HealthBar playState={playState} />
+          {/* Welcome */}
+          {playerState.gameState === GameStates.Welcome && (
+            <Welcome setPlayerState={setPlayerState} />
+          )}
 
-          <div className="deck-and-weapons">
-            <WeaponsBox playState={playState} />
-            <DrawDeck playState={playState} setOpenModal={setOpenModal} />
-          </div>
-
-          <RoomBar
-            playState={playState}
-            setPlayState={setPlayState}
-            resetGame={resetGame}
-          />
-
-          <div className="room-and-actions">
-            <div className="room-cards">
-              {playState.roomCards.map((card, index) => {
-                return <Card key={"card" + index} card={card} />;
-              })}
-            </div>
-
-            <Actions
-              playState={playState}
-              setPlayState={setPlayState}
-              isAnimating={isAnimating}
-              setIsAnimating={setIsAnimating}
+          {/* Home */}
+          {playerState.gameState === GameStates.Home && (
+            <Home
+              dungeonState={dungeonState}
+              playerState={playerState}
+              setPlayerState={setPlayerState}
+              gameStart={gameStart}
             />
-          </div>
+          )}
+
+          {/* Dungeon */}
+          {playerState.gameState === GameStates.InProgress && (
+            <>
+              <HealthBar dungeonState={dungeonState} />
+
+              <div className="deck-and-weapons">
+                <WeaponsBox dungeonState={dungeonState} />
+                <DrawDeck
+                  dungeonState={dungeonState}
+                  setOpenModal={setOpenModal}
+                />
+              </div>
+
+              <RoomBar
+                dungeonState={dungeonState}
+                playerState={playerState}
+                setDungeonState={setDungeonState}
+                openInventory={openInventory}
+              />
+
+              <div className="room-and-actions">
+                <div className="room-cards">
+                  {dungeonState.roomCards.map((card, index) => {
+                    return <Card key={"card" + index} card={card} />;
+                  })}
+                </div>
+
+                <Actions
+                  dungeonState={dungeonState}
+                  setDungeonState={setDungeonState}
+                  playerState={playerState}
+                  setPlayerState={setPlayerState}
+                  isAnimating={isAnimating}
+                  setIsAnimating={setIsAnimating}
+                />
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

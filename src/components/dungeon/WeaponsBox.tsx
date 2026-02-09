@@ -1,28 +1,28 @@
 import clsx from "clsx";
 import "./HealthBar.scss";
-import type { PlayState } from "../utils/types";
-import { SwordIcon } from "./icons/Sword";
-import { Card } from "./Card";
-import { DragonIcon } from "./icons/Dragon";
+import type { DungeonState } from "../../utils/types";
+import { SwordIcon } from "../icons/Sword";
+import { DragonIcon } from "../icons/Dragon";
 import "./WeaponsBox.scss";
+import { Card } from "../misc/Card";
 
 interface WeaponsBoxProps {
-  playState: PlayState;
+  dungeonState: DungeonState;
 }
 
-export const WeaponsBox = ({ playState }: WeaponsBoxProps) => {
+export const WeaponsBox = ({ dungeonState }: WeaponsBoxProps) => {
   return (
     <div className="weapons">
       <div className="weapons__weapon">
-        {!playState.weapon && <SwordIcon />}
+        {!dungeonState.weapon && <SwordIcon />}
 
-        <Card card={playState.weapon} />
+        <Card card={dungeonState.weapon} />
       </div>
 
       <div className="weapons__separator" />
 
       <div className="weapons__cards">
-        {playState.weaponCards.map((card, index) => {
+        {dungeonState.weaponCards.map((card, index) => {
           return <Card key={"weapon-card" + index} card={card} />;
         })}
 

@@ -1,9 +1,9 @@
 import clsx from "clsx";
-import { PotionIcon } from "./icons/Potion";
-import { SwordIcon } from "./icons/Sword";
-import { FistIcon } from "./icons/Fist";
-import { EquipIcon } from "./icons/Equip";
-import { SkullIcon } from "./icons/Skull";
+import { PotionIcon } from "../icons/Potion";
+import { SwordIcon } from "../icons/Sword";
+import { FistIcon } from "../icons/Fist";
+import { EquipIcon } from "../icons/Equip";
+import { SkullIcon } from "../icons/Skull";
 import "./ActionButton.scss";
 
 interface ActionButtonsProps {

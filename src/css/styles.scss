@@ -90,40 +90,43 @@ h4,
 h5,
 h6 {
   margin-bottom: 8px;
-  color: var(--card-red);
+  color: var(--red);
 }
 
 h1 {
   font-size: 36px;
   font-weight: 650;
-  color: var(--card-red);
+  color: var(--red);
 }
 h2 {
   font-size: 26px;
   font-weight: 350;
-  color: var(--card-red);
+  color: var(--red);
 }
 h3 {
   font-size: 28px;
   font-weight: 600;
-  color: var(--card-red);
+  color: var(--red);
 }
 h4 {
   font-size: 26px;
   font-weight: 600;
-  color: var(--card-red);
+  color: var(--red);
 }
 h5 {
   font-size: 22px;
   font-weight: 600;
-  color: var(--card-red);
+  color: var(--red);
 }
 h6 {
   font-size: 18px;
   font-weight: 600;
-  color: var(--card-red);
+  color: var(--red);
 }
 
+p {
+  margin-bottom: 20px;
+}
 p,
 li {
   font-weight: 250;
@@ -152,74 +155,146 @@ button {
   margin: unset;
   background: unset;
   border: unset;
-}
 
-button.plain-btn {
-  transition: 0.2s ease all;
-  transition-property: background-color, border-color, color;
-  cursor: pointer;
-  padding: 0 16px;
-  height: var(--button-height);
+  &.plain-btn {
+    transition: 0.2s ease all;
+    transition-property: background-color, border-color, color;
+    cursor: pointer;
+    padding: 0 16px;
+    height: var(--button-height);
 
-  display: flex;
-  justify-content: center;
-  align-items: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
-  border-radius: calc(var(--button-height) / 2);
-  border: 1px solid rgba(var(--K700-rgb), 0.55);
-  background: unset;
-  box-shadow:
-    inset 0 0 12px rgba(var(--K100-rgb), 0.1),
-    1px 2px 8px rgba(var(--K950-rgb), 0.5);
-
-  font-size: 18px;
-  font-weight: 550;
-  color: var(--K100);
-  line-height: 1.4;
-
-  &:disabled {
-    cursor: not-allowed;
-  }
-
-  &:not(:disabled) {
-    &:hover,
-    &:active {
-      color: var(--K100);
-      border-color: var(--K400);
-      background: var(--K800);
-    }
-  }
-}
-
-@mixin color-btn($name, $color, $text-color) {
-  button.#{$name}-btn {
-    border: 2px solid rgba(var(--#{$color}-rgb), 0.1);
-    background: var(--#{$color});
+    border-radius: calc(var(--button-height) / 2);
+    border: 1px solid rgba(var(--K100-rgb), 0.5);
+    background: unset;
     box-shadow:
-      0 0 4px rgba(var(--#{$color}-rgb), 0.6),
-      1px 2px 10px rgba(var(--#{$color}ange-rgb), 0.6);
+      inset 0 0 8px rgba(var(--K100-rgb), 0.3),
+      1px 2px 8px rgba(var(--K950-rgb), 0.5);
 
-    color: rgba(var(--#{$text-color}-rgb), 0.8);
+    font-size: 18px;
+    font-weight: 550;
+    color: var(--K100);
+    line-height: 1.4;
 
-    &:not(:disabled):hover {
-      background: rgba(var(--#{$color}-rgb), 0.7);
-      border-color: rgba(var(--#{$color}-rgb), 1);
-      box-shadow:
-        0 0 8px rgba(var(--#{$color}-rgb), 0.8),
-        1px 2px 14px rgba(var(--#{$color}-rgb), 0.8);
+    svg {
+      width: 28px;
+      height: 28px;
+      fill: var(--K100);
     }
+
     &:disabled {
-      border-color: rgba(var(--K800-rgb), 0.4);
-      background: transparent;
-      box-shadow: unset;
-      color: rgba(var(--K300-rgb), 0.3);
+      cursor: not-allowed;
+
+      border: 1px solid rgba(var(--K100-rgb), 0.1);
+      background: unset;
+      box-shadow:
+        inset 0 0 8px rgba(var(--K100-rgb), 0),
+        1px 2px 8px rgba(var(--K950-rgb), 0.1);
+
+      color: rgba(var(--K100-rgb), 0.2);
+    }
+
+    &:not(:disabled) {
+      &:hover,
+      &:active {
+        color: var(--K100);
+        border-color: var(--K400);
+        background: var(--K800);
+      }
     }
   }
-}
 
-@include color-btn("red", "card-red", "white");
-@include color-btn("orange", "orange", "black");
-@include color-btn("green", "green", "black");
+  @mixin color-btn($name, $bg-color, $text-color, $text-shadow) {
+    &.#{$name}-btn {
+      border: unset;
+      background: var(--#{$bg-color});
+      box-shadow:
+        inset 0 0 1px rgba(var(--white-rgb), 0.8),
+        inset 0 0 8px rgba(var(--white-rgb), 0.2),
+        0 0 4px rgba(var(--#{$bg-color}-rgb), 0.6),
+        1px 2px 10px rgba(var(--#{$bg-color}-rgb), 0.6);
+
+      color: $text-color;
+      text-shadow: $text-shadow;
+
+      svg {
+        fill: $text-color;
+        filter: drop-shadow($text-shadow);
+      }
+
+      &:not(:disabled):hover {
+        background: rgba(var(--#{$bg-color}-rgb), 0.7);
+        border-color: rgba(var(--#{$bg-color}-rgb), 1);
+        box-shadow:
+          inset 0 0 2px rgba(var(--white-rgb), 1),
+          inset 0 0 10px rgba(var(--white-rgb), 0.2),
+          0 0 8px rgba(var(--#{$bg-color}-rgb), 0.8),
+          1px 2px 14px rgba(var(--#{$bg-color}-rgb), 0.8);
+
+        color: $text-color;
+
+        svg {
+          fill: $text-color;
+        }
+      }
+      &:disabled {
+        border-color: rgba(var(--K800-rgb), 0.4);
+        background: rgba(var(--K800-rgb), 0.4);
+        box-shadow: unset;
+        color: rgba(var(--K300-rgb), 0.3);
+        text-shadow: unset;
+
+        svg {
+          fill: rgba(var(--K300-rgb), 0.3);
+        }
+      }
+    }
+  }
+
+  @include color-btn("red", "red", rgba(var(--white-rgb), 1), unset);
+  @include color-btn(
+    "green",
+    "green",
+    rgba(var(--white-rgb), 1),
+    0 1px 3px rgba(var(--black-rgb), 0.2)
+  );
+  @include color-btn(
+    "orange",
+    "orange",
+    rgba(var(--black-rgb), 1),
+    0 1px 2px rgba(var(--white-rgb), 0.2)
+  );
+
+  @include color-btn(
+    "blue",
+    "blue",
+    rgba(var(--black-rgb), 1),
+    0 0 2px rgba(var(--white-rgb), 0.5)
+  );
+
+  @include color-btn(
+    "gold",
+    "gold",
+    rgba(var(--dark-gold-rgb), 1),
+    0 0 2px rgba(var(--white-rgb), 0.5)
+  );
+
+  &.small-btn {
+    border-radius: calc(var(--button-height) * 0.8 / 2);
+    height: calc(var(--button-height) * 0.8);
+
+    font-size: 16px;
+  }
+  &.large-btn {
+    border-radius: calc(var(--button-height) * 1.4 / 2);
+    height: calc(var(--button-height) * 1.4);
+
+    font-size: 20px;
+  }
+}
 
 .color-green {
   color: var(--green);
@@ -232,18 +307,26 @@ button.plain-btn {
 }
 
 table {
-  text-align: left;
+  $cell-padding: 8px;
+
+  color: var(--white);
   line-height: 1.1;
+  text-align: left;
+
+  width: calc(100% + ($cell-padding * 2));
+  margin-left: calc($cell-padding * -1);
 
   td,
   th {
     border: unset;
     border-collapse: collapse;
-    padding: 8px;
+    padding: $cell-padding;
   }
 
-  td {
+  td,
+  th {
     font-size: 18px;
+    vertical-align: middle;
   }
   th {
     font-size: 18px;

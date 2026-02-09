@@ -8,4 +8,31 @@ Traits:
 pick one, has buffs
 - extra health when weapon stack gets to 5 (killing high)
 - minus 2 damage when killing aces by hand (dragon slayer)
-- minus 1 damange when killing kings of queens by hand (regicide)
+- minus 1 damage when killing kings of queens by hand (regicide)
+- keep weapon in next dungeon
+- weapon can be used on same level monster (not just one level below)
+
+Features:
+- When there's no way out of the room, some visual indication happens
+- When killing 2s by hand (?), you get a CHANCE of getting a rat, which is worth one health
+- When killing aces by hand (or by weapon?), you get a CHANCE of getting a potion, which is worth three health
+- Dragons sometimes give out gold (weapon only)
+- Dragons sometimes give out potions (fist only)
+
+- When killing a monster, sometimes there's a rat underneath (unless there's a new deck coming up). Rat will scurry and leave, but if you press it, you catch it.
+- Rats can be consumed, you can roll the dice. The more your health, the more chance that the rat will heal. With low health, rats are more likely to take health away.
+
+- Killing dragons sometimes release (potions?) or coins, but you have to press to collect them? Random change, most likely 0, but sometimes 1, rarely 2 or 3.
+
+Rogue
+- When you lose a game, you can choose between three dice rolls, to get three temporary bonuses for the next round. There are safe roles and risky ones, to get small or large bonuses.
+- When you win a game, you get to roll too, but for permanent bonuses (rogue).
+
+XP, gold, store
+- Earn XP by fighting face/ace monsters, stacking weapon decks, etc.
+- Earn XP by clearing dungeons
+- XP unlocks levels, which gives higher health, and... ?
+- Earn gold by cleaning dungeons; only keep gold when exiting after a dungeon without continuing; more gold in further dungeons
+- Use gold to purchase armor (overpowered?), potions, bombs (clears entire room; very expensive), free runs, See partly/fully into next room (once)
+
+- XPs add up to level up. each level up you can add to traits. Each trait gets better as you add to it: increased health, increased luck, increase chance of not suffering as much damage, better shop prices, more loot at dungeon ends, ability to see future cards

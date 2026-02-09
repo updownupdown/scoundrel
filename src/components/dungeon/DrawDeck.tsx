@@ -1,23 +1,23 @@
 import clsx from "clsx";
 import "./HealthBar.scss";
-import type { PlayState } from "../utils/types";
-import { maxHealth } from "../utils/constants";
-import { HeartIcon } from "./icons/Heart";
+import type { DungeonState } from "../../utils/types";
+import { maxHealth } from "../../utils/constants";
+import { HeartIcon } from "../icons/Heart";
 import "./DrawDeck.scss";
-import { Modals, type ModalType } from "./modals/ModalEmbeds";
-import { Card } from "./Card";
+import { Modals, type ModalType } from "../modals/ModalEmbeds";
+import { Card } from "../misc/Card";
 
 interface DrawDeckProps {
-  playState: PlayState;
+  dungeonState: DungeonState;
   setOpenModal: (modal: ModalType | undefined) => void;
 }
 
-export const DrawDeck = ({ playState, setOpenModal }: DrawDeckProps) => {
+export const DrawDeck = ({ dungeonState, setOpenModal }: DrawDeckProps) => {
   return (
     <div
       className={clsx(
         "draw-deck",
-        playState.drawDeck.length === 0 && "draw-deck--empty",
+        dungeonState.drawDeck.length === 0 && "draw-deck--empty",
       )}
       style={{ transform: "translate(4px, 4px)" }}
       onClick={() => {
@@ -25,7 +25,7 @@ export const DrawDeck = ({ playState, setOpenModal }: DrawDeckProps) => {
       }}
     >
       {Array.from(
-        { length: Math.ceil(playState.drawDeck.length / 8) },
+        { length: Math.ceil(dungeonState.drawDeck.length / 8) },
         (num, index) => (
           <div
             key={index + "cardwrap"}
@@ -36,10 +36,10 @@ export const DrawDeck = ({ playState, setOpenModal }: DrawDeckProps) => {
               marginLeft: `-${index * 2}px`,
             }}
           >
-            {index === Math.ceil(playState.drawDeck.length / 8) - 1 && (
+            {index === Math.ceil(dungeonState.drawDeck.length / 8) - 1 && (
               <div className="draw-deck__text">
                 <span className="draw-deck__text__count">
-                  {playState.drawDeck.length}
+                  {dungeonState.drawDeck.length}
                 </span>
 
                 {/* <span className="draw-deck__text__peek">Peek</span> */}

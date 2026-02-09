@@ -1,20 +1,20 @@
 import clsx from "clsx";
 import "./HealthBar.scss";
-import type { PlayState } from "../utils/types";
-import { maxHealth } from "../utils/constants";
-import { HeartIcon } from "./icons/Heart";
+import type { DungeonState } from "../../utils/types";
+import { maxHealth } from "../../utils/constants";
+import { HeartIcon } from "../icons/Heart";
 
 interface HealthBarProps {
-  playState: PlayState;
+  dungeonState: DungeonState;
 }
 
-export const HealthBar = ({ playState }: HealthBarProps) => {
+export const HealthBar = ({ dungeonState }: HealthBarProps) => {
   return (
     <div
       className={clsx(
         "health-bar",
-        playState.health / maxHealth < 0.5
-          ? playState.health / maxHealth < 0.25
+        dungeonState.health / maxHealth < 0.5
+          ? dungeonState.health / maxHealth < 0.25
             ? "health-bar--red"
             : "health-bar--orange"
           : "health-bar--green",
@@ -22,14 +22,14 @@ export const HealthBar = ({ playState }: HealthBarProps) => {
     >
       <div className="health-bar__icon">{<HeartIcon />}</div>
       <div
-        className="health-bar__progress"
+        className="health-bar__playerState"
         style={{
-          width: `${((playState.health + 3) / (maxHealth + 3)) * 100}%`,
+          width: `${((dungeonState.health + 3) / (maxHealth + 3)) * 100}%`,
         }}
       />
       <span className="health-bar__text">
         <span>
-          {playState.health}
+          {dungeonState.health}
 
           <span className="pale"> / {maxHealth ?? "--"}</span>
         </span>

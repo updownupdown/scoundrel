@@ -1,58 +1,55 @@
 import { Modal } from "./Modal";
 import { DeckModal } from "./DeckModal";
 import { AboutModal } from "./AboutModal";
-import type { PlayState, Stats } from "../../utils/types";
-import { WelcomeModal } from "./WelcomeModal";
+import type {
+  DungeonState,
+  PlayerState as PlayerState,
+} from "../../utils/types";
 import type { Dispatch, SetStateAction } from "react";
-import { HowToPlayModal } from "./HowToPlayModal";
 import { StatsModal } from "./StatsModal";
+import { DungeonEndModal } from "./DungeonEndModal";
+import { InventoryModal } from "./InventoryModal";
+import { HowToPlayModal } from "./HowToPlayModal";
 
 export const Modals = {
-  Welcome: "Welcome",
   HowToPlay: "How to Play",
   About: "About and Credits",
   Stats: "Stats",
   Deck: "Deck",
-  Won: "Won",
-  Lost: "Lost",
+  DungeonEnd: "Dungeon End",
+  Inventory: "Inventory",
+  Home: "Home",
 } as const;
 
 export type ModalType = (typeof Modals)[keyof typeof Modals];
 
 interface ModalEmbedsProps {
-  playState: PlayState;
-  setPlayState: Dispatch<SetStateAction<PlayState>>;
-  stats: Stats;
-  setStats: Dispatch<SetStateAction<Stats>>;
-  resetGame: () => void;
+  dungeonState: DungeonState;
+  setDungeonState: Dispatch<SetStateAction<DungeonState>>;
+  playerState: PlayerState;
+  setPlayerState: Dispatch<SetStateAction<PlayerState>>;
   openModal?: ModalType;
   setOpenModal: (modal: ModalType | undefined) => void;
+  dungeonExit: () => void;
+  dungeonContinue: () => void;
+  gameStart: () => void;
+  openInventory: () => void;
 }
 
 export const ModalEmbeds = ({
-  playState,
-  setPlayState,
-  stats,
-  setStats,
-  resetGame,
+  dungeonState,
+  setDungeonState,
+  playerState,
+  setPlayerState,
   openModal,
   setOpenModal,
+  dungeonExit,
+  dungeonContinue,
 }: ModalEmbedsProps) => {
   return (
     <>
-      {openModal === Modals.Welcome && (
-        <WelcomeModal
-          isOpen
-          onClose={() => {
-            setOpenModal(undefined);
-          }}
-          setOpenModal={setOpenModal}
-        />
-      )}
-
       {openModal === Modals.HowToPlay && (
         <HowToPlayModal
-          isOpen={true}
           onClose={() => {
             setOpenModal(undefined);
           }}
@@ -61,18 +58,16 @@ export const ModalEmbeds = ({
 
       {openModal === Modals.Stats && (
         <StatsModal
-          isOpen={true}
           onClose={() => {
             setOpenModal(undefined);
           }}
-          stats={stats}
-          setStats={setStats}
+          playerState={playerState}
+          setPlayerState={setPlayerState}
         />
       )}
 
       {openModal === Modals.About && (
         <AboutModal
-          isOpen={true}
           onClose={() => {
             setOpenModal(undefined);
           }}
@@ -81,58 +76,33 @@ export const ModalEmbeds = ({
 
       {openModal === Modals.Deck && (
         <DeckModal
-          isOpen
           onClose={() => {
             setOpenModal(undefined);
           }}
-          drawDeck={playState.drawDeck}
+          drawDeck={dungeonState.drawDeck}
         />
       )}
 
-      {openModal === Modals.Won && (
-        <Modal
-          isOpen
-          onClose={() => {
-            setOpenModal(undefined);
-          }}
-        >
-          <div className="win-lose-text">
-            <h2 className="color-green">You won!</h2>
-            <h5>Score: {playState.score}</h5>
-            <button
-              className="plain-btn"
-              onClick={() => {
-                resetGame();
-                setOpenModal(undefined);
-              }}
-            >
-              Play again
-            </button>
-          </div>
-        </Modal>
+      {openModal === Modals.DungeonEnd && (
+        <DungeonEndModal
+          setOpenModal={setOpenModal}
+          dungeonState={dungeonState}
+          dungeonContinue={dungeonContinue}
+          dungeonExit={dungeonExit}
+          playerState={playerState}
+        />
       )}
 
-      {openModal === Modals.Lost && (
-        <Modal
-          isOpen
+      {openModal === Modals.Inventory && (
+        <InventoryModal
           onClose={() => {
             setOpenModal(undefined);
           }}
-        >
-          <div className="win-lose-text">
-            <h2 className="color-red">You died!</h2>
-            <h5>Score: {playState.score}</h5>
-            <button
-              className="plain-btn"
-              onClick={() => {
-                resetGame();
-                setOpenModal(undefined);
-              }}
-            >
-              Try again
-            </button>
-          </div>
-        </Modal>
+          dungeonState={dungeonState}
+          playerState={playerState}
+          setPlayerState={setPlayerState}
+          setDungeonState={setDungeonState}
+        />
       )}
     </>
   );

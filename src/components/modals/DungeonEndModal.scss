@@ -1,0 +1,13 @@
+// .dungeon-end-modal {}
+
+.dungeon-end {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--gap) * 1.4);
+  text-align: center;
+
+  h4 {
+    font-size: 20px;
+    color: var(--card-beige);
+  }
+}

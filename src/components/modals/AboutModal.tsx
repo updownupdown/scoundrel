@@ -2,13 +2,12 @@ import React from "react";
 import { Modal } from "./Modal";
 
 interface AboutModalProps {
-  isOpen: boolean;
   onClose: () => void;
 }
 
-export const AboutModal = ({ isOpen, onClose }: AboutModalProps) => {
+export const AboutModal = ({ onClose }: AboutModalProps) => {
   return (
-    <Modal title="About & Credits" isOpen={isOpen} onClose={onClose}>
+    <Modal title="About & Credits" isOpen onClose={onClose}>
       <h3>About</h3>
       <p>
         Developed by James Carmichael.

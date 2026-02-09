@@ -1,61 +1,24 @@
+import type React from "react";
+import { CoinIcon } from "../components/icons/Coin";
 import { maxHealth } from "./constants";
-
-export type PlayState = {
-  drawDeck: string[];
-  discardDeck: string[];
-  currentRoom?: number;
-  roomCards: (string | undefined)[];
-  ranRooms: number[];
-  health: number;
-  weapon?: string;
-  weaponCards: string[];
-  gameState?: GameState;
-  score: number;
-  bonusScore: number;
-  isRunning: boolean;
-  usedPotionInRoom: boolean;
-};
-
-export type Stats = {
-  gamesLost: number;
-  gamesWon: number;
-  gamesReset: number;
-  avgLastRoomWithoutResets?: number;
-  avgLastRoomWithResets?: number;
-};
-
-export const defaultStats: Stats = {
-  gamesLost: 0,
-  gamesWon: 0,
-  gamesReset: 0,
-  avgLastRoomWithoutResets: undefined,
-  avgLastRoomWithResets: undefined,
-};
+import { PotionIcon } from "../components/icons/Potion";
 
 export const GameStates = {
-  Stopped: "Stopped",
+  Welcome: "Welcome",
+  Home: "Home",
+  DungeonEnd: "DungeonEnd",
   InProgress: "In Progress",
-  Lost: "Lost",
-  Won: "Won",
 } as const;
 
 export type GameState = (typeof GameStates)[keyof typeof GameStates];
 
-export const defaultPlayState: PlayState = {
-  drawDeck: [],
-  discardDeck: [],
-  currentRoom: undefined,
-  roomCards: [],
-  ranRooms: [],
-  weapon: undefined,
-  weaponCards: [],
-  health: maxHealth,
-  gameState: undefined,
-  score: 0,
-  bonusScore: 0,
-  isRunning: false,
-  usedPotionInRoom: false,
-};
+export const HomeTabs = {
+  Home: "Home",
+  Shop: "Shop",
+  Character: "Character",
+} as const;
+
+export type HomeTab = (typeof HomeTabs)[keyof typeof HomeTabs];
 
 export const CardTypes = {
   Potion: "Potion",
@@ -64,3 +27,93 @@ export const CardTypes = {
 } as const;
 
 export type CardType = (typeof CardTypes)[keyof typeof CardTypes];
+
+export const ItemTypes = {
+  Coin: "Coin",
+  Potion: "Potion",
+  // Rat: "Rat",
+  // Bomb: "Bomb",
+} as const;
+
+export type ItemType = (typeof ItemTypes)[keyof typeof ItemTypes];
+
+export type Inventory = Record<ItemType, number>;
+
+export const ItemCost: Record<ItemType, number | undefined> = {
+  [ItemTypes.Coin]: undefined,
+  [ItemTypes.Potion]: 5,
+  // [ItemTypes.Rat]: 1,
+  // [ItemTypes.Bomb]: 20,
+};
+
+export const ItemIcon: Record<ItemType, React.ComponentType<any>> = {
+  [ItemTypes.Coin]: CoinIcon,
+  [ItemTypes.Potion]: PotionIcon,
+  // [ItemTypes.Rat]: RatIcon,
+  // [ItemTypes.Bomb]: BombIcon,
+};
+
+export const defaultInventory: Inventory = {
+  [ItemTypes.Coin]: 0,
+  [ItemTypes.Potion]: 0,
+  // [ItemTypes.Rat]: 0,
+  // [ItemTypes.Bomb]: 0,
+};
+
+export type DungeonState = {
+  drawDeck: string[];
+  discardDeck: string[];
+  currentRoom: number;
+  currentDungeon: number;
+  roomCards: string[];
+  ranRooms: number[];
+  health: number;
+  weapon?: string;
+  weaponCards: string[];
+  score: number;
+  bonusScore: number;
+  scoreEndless: number;
+  isRunning: boolean;
+  usedPotionInRoom: boolean;
+};
+
+export const defaultDungeonState: DungeonState = {
+  drawDeck: [],
+  discardDeck: [],
+  currentRoom: 0,
+  currentDungeon: 1,
+  roomCards: [],
+  ranRooms: [],
+  weapon: undefined,
+  weaponCards: [],
+  health: maxHealth,
+  score: 0,
+  bonusScore: 0,
+  scoreEndless: 0,
+  isRunning: false,
+  usedPotionInRoom: false,
+};
+
+export type PlayerState = {
+  gameState: GameState;
+  gamesLost: number;
+  gamesWon: number;
+  lastGameWon?: boolean;
+  avgLastRoom?: number;
+  avgLastRoomAcrossDungeons?: number;
+  avgLastDungeon?: number;
+  inventoryHome: Inventory;
+  inventoryPack: Inventory;
+};
+
+export const defaultPlayerState: PlayerState = {
+  gameState: GameStates.Welcome,
+  gamesLost: 0,
+  gamesWon: 0,
+  lastGameWon: undefined,
+  avgLastRoom: undefined,
+  avgLastRoomAcrossDungeons: undefined,
+  avgLastDungeon: undefined,
+  inventoryHome: defaultInventory,
+  inventoryPack: defaultInventory,
+};

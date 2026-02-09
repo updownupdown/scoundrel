@@ -3,19 +3,14 @@ import "./DeckModal.scss";
 import clsx from "clsx";
 import { Modal } from "./Modal";
 import { allCards } from "../../utils/constants";
-import { Card } from "../Card";
+import { Card } from "../misc/Card";
 
 interface DeckModalProps {
-  isOpen: boolean;
   onClose: () => void;
   drawDeck: string[];
 }
 
-export const DeckModal = ({
-  isOpen,
-  onClose,
-  drawDeck: cards,
-}: DeckModalProps) => {
+export const DeckModal = ({ onClose, drawDeck: cards }: DeckModalProps) => {
   const suits = ["S", "C", "D", "H"];
   const nums = [
     "2",
@@ -34,12 +29,7 @@ export const DeckModal = ({
   ];
 
   return (
-    <Modal
-      title="Draw Deck"
-      isOpen={isOpen}
-      onClose={onClose}
-      modalClass="deck-modal"
-    >
+    <Modal title="Draw Deck" isOpen onClose={onClose} modalClass="deck-modal">
       <div className="peek-deck">
         {suits.map((suit) => {
           return (

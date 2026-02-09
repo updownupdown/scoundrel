@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import "./Header.scss";
-import { D20Icon } from "./icons/D20";
-import { MenuIcon } from "./icons/Menu";
-import { Modals, type ModalType } from "./modals/ModalEmbeds";
+import { D20Icon } from "../icons/D20";
+import { MenuIcon } from "../icons/Menu";
+import { Modals, type ModalType } from "../modals/ModalEmbeds";
 import clsx from "clsx";
-import { CloseIcon } from "./icons/Close";
+import { CloseIcon } from "../icons/Close";
 
 interface HeaderProps {
   setOpenModal: (modal: ModalType) => void;

@@ -13,7 +13,7 @@ export const Blood = () => {
   const svgGroup = useRef<SVGSVGElement>(null);
 
   const strokeWidth = 15;
-  const fadeOutDelay = 2;
+  const fadeOutDelay = 5;
   const tl = gsap.timeline({ paused: true });
   const power = [Power0, Power1, Power2, Power3];
 
@@ -112,6 +112,7 @@ export const Blood = () => {
     addLines();
 
     svgContainer.current?.setAttribute("class", "");
+
     tl.play();
   }, []);
 

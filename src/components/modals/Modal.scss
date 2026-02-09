@@ -64,6 +64,7 @@
 
       &:focus,
       &:hover {
+        outline: none;
         background: var(--K900);
 
         svg {
@@ -86,18 +87,6 @@
     color: var(--K700);
     font-weight: 700;
     line-height: 1.3;
-
-    .win-lose-text {
-      display: flex;
-      flex-direction: column;
-      gap: var(--gap);
-      text-align: center;
-      padding: var(--gap);
-
-      h2 {
-        margin-bottom: 0;
-      }
-    }
   }
 
   &::backdrop {
@@ -106,7 +95,11 @@
     backdrop-filter: blur(4px);
   }
 
-  &--no-backdrop::backdrop {
-    display: none;
-  }
+  // &--no-backdrop::backdrop {
+  // display: none;
+  // }
+}
+
+.small-modal {
+  max-width: 340px;
 }

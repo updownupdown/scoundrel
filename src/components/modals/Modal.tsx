@@ -5,7 +5,7 @@ import { CloseIcon } from "../icons/Close";
 
 interface Props {
   isOpen: boolean;
-  onClose: () => void;
+  onClose?: () => void;
   title?: string;
   children: React.ReactNode;
   modalClass?: string;
@@ -22,7 +22,7 @@ export const Modal = ({
 
   window.addEventListener("click", (event) => {
     const dialog = document.querySelector("dialog");
-    if (event.target === dialog) {
+    if (event.target === dialog && onClose) {
       onClose();
     }
   });
@@ -46,9 +46,11 @@ export const Modal = ({
       {title && (
         <div className="modal-header">
           <h2>{title}</h2>
-          <button className="dialog-close-btn" onClick={onClose}>
-            <CloseIcon />
-          </button>
+          {onClose && (
+            <button className="dialog-close-btn" onClick={onClose}>
+              <CloseIcon />
+            </button>
+          )}
         </div>
       )}
 

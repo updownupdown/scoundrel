@@ -1,35 +1,42 @@
-import clsx from "clsx";
 import "./HealthBar.scss";
 import {
   CardTypes,
-  defaultPlayState,
   GameStates,
-  type PlayState,
-} from "../utils/types";
-import { maxHealth } from "../utils/constants";
-import { HeartIcon } from "./icons/Heart";
+  ItemTypes,
+  type DungeonState,
+  type PlayerState,
+} from "../../utils/types";
+import {
+  emptyCardSymbol,
+  maxCardValue,
+  maxHealth,
+} from "../../utils/constants";
 import { ActionButton } from "./ActionButton";
-import { parseCard } from "../utils/utils";
-import { animateCard } from "../utils/animations";
+import { parseCard } from "../../utils/utils";
+import { animateCard } from "../../utils/animations";
 import type { Dispatch, SetStateAction } from "react";
 
 interface HealthBarProps {
-  playState: PlayState;
-  setPlayState: Dispatch<SetStateAction<PlayState>>;
+  dungeonState: DungeonState;
+  setDungeonState: Dispatch<SetStateAction<DungeonState>>;
+  playerState: PlayerState;
+  setPlayerState: Dispatch<SetStateAction<PlayerState>>;
   isAnimating: boolean;
   setIsAnimating: (isAnimating: boolean) => void;
 }
 
 export const Actions = ({
-  playState,
-  setPlayState,
+  dungeonState,
+  setDungeonState,
+  playerState,
+  setPlayerState,
   isAnimating,
   setIsAnimating,
 }: HealthBarProps) => {
   // Info
   const lowestWeaponCard = () => {
     const lastWeaponCard =
-      playState.weaponCards?.[playState.weaponCards.length - 1];
+      dungeonState.weaponCards?.[dungeonState.weaponCards.length - 1];
     if (!lastWeaponCard) return undefined;
     const { cardValue } = parseCard(lastWeaponCard);
     return cardValue;
@@ -38,15 +45,18 @@ export const Actions = ({
   const canUseWeapon = (cardValue: number) => {
     const lowestWeapon = lowestWeaponCard();
     return (
-      !!playState.weapon &&
+      !!dungeonState.weapon &&
       (lowestWeapon === undefined || cardValue < lowestWeapon)
     );
   };
 
   // Data actions
   function getDamageValue(card: string) {
+    if (card === emptyCardSymbol || !dungeonState.weapon) return 0;
+
     const { cardValue: monsterValue } = parseCard(card);
-    const { cardValue: weaponValue } = parseCard(playState.weapon);
+    const { cardValue: weaponValue } = parseCard(dungeonState.weapon);
+
     let damage = monsterValue - weaponValue;
     if (damage < 0) damage = 0;
 
@@ -61,28 +71,30 @@ export const Actions = ({
 
     const { cardValue } = parseCard(card);
 
-    let health = playState.health + cardValue;
+    let health = dungeonState.health + cardValue;
     if (health > maxHealth) health = maxHealth;
 
     // Bonus score if applicable
     let bonusScore = 0;
 
     if (
-      playState.drawDeck.length === 0 &&
-      playState.roomCards.length === 0 &&
-      playState.health === maxHealth
+      dungeonState.drawDeck.length === 0 &&
+      dungeonState.roomCards.length === 0 &&
+      dungeonState.health === maxHealth
     ) {
       bonusScore = cardValue;
     }
 
-    setPlayState((prev) => ({
+    setDungeonState((prev) => ({
       ...prev,
       health,
       usedPotionInRoom: true,
       bonusScore: bonusScore,
       // Discard from room
-      roomCards: playState.roomCards.map((c) => (c === card ? undefined : c)),
-      discardDeck: [...playState.discardDeck, card],
+      roomCards: dungeonState.roomCards.map((c) =>
+        c === card ? emptyCardSymbol : c,
+      ),
+      discardDeck: [...dungeonState.discardDeck, card],
     }));
 
     setIsAnimating(false);
@@ -94,19 +106,23 @@ export const Actions = ({
 
     await animateCard(card, "weapon-equip");
 
-    setPlayState((prev) => ({
+    setDungeonState((prev) => ({
       ...prev,
       // Discard previous weapons and weapon cards
       discardDeck: [
-        ...playState.discardDeck,
-        ...(playState.weapon !== undefined ? [playState.weapon] : []),
-        ...(playState.weaponCards !== undefined ? playState.weaponCards : []),
+        ...dungeonState.discardDeck,
+        ...(dungeonState.weapon !== undefined ? [dungeonState.weapon] : []),
+        ...(dungeonState.weaponCards !== undefined
+          ? dungeonState.weaponCards
+          : []),
       ],
       // Equip current
       weapon: card,
       weaponCards: [],
       // Remove card from room
-      roomCards: playState.roomCards.map((c) => (c === card ? undefined : c)),
+      roomCards: dungeonState.roomCards.map((c) =>
+        c === card ? emptyCardSymbol : c,
+      ),
     }));
 
     setIsAnimating(false);
@@ -120,21 +136,34 @@ export const Actions = ({
 
     const { cardValue: monsterValue } = parseCard(card);
 
-    if (!playState.weapon) return;
-    const { cardValue: weaponValue } = parseCard(playState.weapon);
+    if (!dungeonState.weapon) return;
+    const { cardValue: weaponValue } = parseCard(dungeonState.weapon);
 
     let damage = monsterValue - weaponValue;
     if (damage < 0) damage = 0;
 
-    let health = playState.health - damage;
+    let health = dungeonState.health - damage;
     if (health < 0) health = 0;
 
-    setPlayState((prev) => ({
+    setDungeonState((prev) => ({
       ...prev,
       health,
-      roomCards: playState.roomCards.map((c) => (c === card ? undefined : c)),
-      weaponCards: [...playState.weaponCards, card],
+      roomCards: dungeonState.roomCards.map((c) =>
+        c === card ? emptyCardSymbol : c,
+      ),
+      weaponCards: [...dungeonState.weaponCards, card],
     }));
+
+    // Get coin for slaying a dragon
+    if (monsterValue === maxCardValue) {
+      setPlayerState((prev) => ({
+        ...prev,
+        inventoryPack: {
+          ...playerState.inventoryPack,
+          [ItemTypes.Coin]: playerState.inventoryPack[ItemTypes.Coin] + 1,
+        },
+      }));
+    }
 
     setIsAnimating(false);
   }
@@ -147,15 +176,17 @@ export const Actions = ({
 
     const { cardValue } = parseCard(card);
 
-    let health = playState.health - cardValue;
+    let health = dungeonState.health - cardValue;
     if (health < 0) health = 0;
 
-    setPlayState((prev) => ({
+    setDungeonState((prev) => ({
       ...prev,
       health,
       // Discard from room
-      roomCards: playState.roomCards.map((c) => (c === card ? undefined : c)),
-      discardDeck: [...playState.discardDeck, card],
+      roomCards: dungeonState.roomCards.map((c) =>
+        c === card ? emptyCardSymbol : c,
+      ),
+      discardDeck: [...dungeonState.discardDeck, card],
     }));
 
     setIsAnimating(false);
@@ -163,23 +194,23 @@ export const Actions = ({
 
   return (
     <div className="actions">
-      {playState.gameState === GameStates.InProgress &&
-        playState.roomCards.map((card, index) => {
+      {playerState.gameState === GameStates.InProgress &&
+        dungeonState.roomCards.map((card, index) => {
           const { cardType, cardValue } = parseCard(card);
 
           return (
             <div key={"action" + index} className="actions__buttons">
-              {card && (
+              {card !== emptyCardSymbol && (
                 <>
                   {cardType === CardTypes.Potion && (
                     <ActionButton
                       type="heal"
                       extraClasses={
-                        playState.usedPotionInRoom
+                        dungeonState.usedPotionInRoom
                           ? ["action-btn--heal-no-effect"]
                           : undefined
                       }
-                      value={`+${playState.usedPotionInRoom ? 0 : cardValue}`}
+                      value={`+${dungeonState.usedPotionInRoom ? 0 : cardValue}`}
                       onClick={() => doHeal(card)}
                       isAnimating={isAnimating}
                     />
@@ -207,7 +238,7 @@ export const Actions = ({
                         isAnimating={isAnimating}
                         showSkull={
                           canUseWeapon(cardValue) &&
-                          getDamageValue(card) >= playState.health
+                          getDamageValue(card) >= dungeonState.health
                         }
                       />
 
@@ -216,7 +247,7 @@ export const Actions = ({
                         value={`-${cardValue}`}
                         onClick={() => doFightBarefist(card)}
                         isAnimating={isAnimating}
-                        showSkull={cardValue >= playState.health}
+                        showSkull={cardValue >= dungeonState.health}
                       />
                     </>
                   )}
