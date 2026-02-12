@@ -83,7 +83,7 @@ export function getSafeShuffledDeck() {
   let deck = arrayShuffle(allCards);
   let shuffleCount = 1;
 
-  while (dungeonHasFalseStart(deck)) {
+  while (dungeonHasFalseStart(deck) && shuffleCount < 20) {
     shuffleCount += 1;
     deck = arrayShuffle(allCards);
   }

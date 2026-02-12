@@ -1,6 +1,10 @@
 import clsx from "clsx";
 import "./HealthBar.scss";
-import type { DungeonState } from "../../utils/types";
+import {
+  GameStates,
+  type DungeonState,
+  type PlayerState,
+} from "../../utils/types";
 import { maxHealth } from "../../utils/constants";
 import { HeartIcon } from "../icons/Heart";
 import "./DrawDeck.scss";
@@ -8,13 +12,19 @@ import { Modals, type ModalType } from "../modals/ModalEmbeds";
 import { Card } from "../misc/Card";
 
 interface DrawDeckProps {
+  playerState: PlayerState;
   dungeonState: DungeonState;
   setOpenModal: (modal: ModalType | undefined) => void;
 }
 
-export const DrawDeck = ({ dungeonState, setOpenModal }: DrawDeckProps) => {
+export const DrawDeck = ({
+  playerState,
+  dungeonState,
+  setOpenModal,
+}: DrawDeckProps) => {
   return (
-    <div
+    <button
+      type="button"
       className={clsx(
         "draw-deck",
         dungeonState.drawDeck.length === 0 && "draw-deck--empty",
@@ -23,6 +33,7 @@ export const DrawDeck = ({ dungeonState, setOpenModal }: DrawDeckProps) => {
       onClick={() => {
         setOpenModal(Modals.Deck);
       }}
+      disabled={playerState.gameState === GameStates.Paused}
     >
       {Array.from(
         { length: Math.ceil(dungeonState.drawDeck.length / 8) },
@@ -49,6 +60,6 @@ export const DrawDeck = ({ dungeonState, setOpenModal }: DrawDeckProps) => {
           </div>
         ),
       )}
-    </div>
+    </button>
   );
 };

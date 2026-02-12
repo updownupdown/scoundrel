@@ -5,6 +5,7 @@ import { getValidRoomCards } from "./utils/utils";
 import {
   defaultDungeonState,
   defaultPlayerState,
+  GameModes,
   GameStates,
 } from "./utils/types";
 import { ImagePreloader } from "./utils/ImagePreloader";
@@ -19,15 +20,12 @@ import { RoomBar } from "./components/dungeon/RoomBar";
 import { WeaponsBox } from "./components/dungeon/WeaponsBox";
 import { DrawDeck } from "./components/dungeon/DrawDeck";
 import { Actions } from "./components/dungeon/Actions";
-import { Header } from "./components/dungeon/Header";
-import { useDungeon } from "./utils/dungeonFunctions";
+import { Header } from "./components/misc/Header";
+import { resetGameDelayInSec, useDungeon } from "./utils/dungeonFunctions";
 import { Card } from "./components/misc/Card";
 import { Home } from "./components/home/Home";
 import { currentVersion, emptyCardSymbol } from "./utils/constants";
 import { Welcome } from "./components/home/Welcome";
-import { Blood } from "./components/misc/Blood";
-import Confetti from "react-confetti-boom";
-import { CoinIcon } from "./components/icons/Coin";
 
 function App() {
   const [initialized, setInitialized] = useState(false);
@@ -48,12 +46,14 @@ function App() {
   const wrapRef = useRef(null);
 
   const {
+    gameWin,
     gameStart,
     gameLose,
     dungeonEnd,
     dungeonContinue,
     dungeonExit,
     openInventory,
+    dungeonToasts,
   } = useDungeon({
     playerState,
     setPlayerState,
@@ -71,7 +71,10 @@ function App() {
       setInitialized(true);
     } else {
       setDungeonState(defaultDungeonState);
-      setPlayerState(defaultPlayerState);
+      setPlayerState((prev) => ({
+        ...prev,
+        ...defaultPlayerState,
+      }));
       setVersionTag(currentVersion);
       setInitialized(true);
     }
@@ -92,6 +95,26 @@ function App() {
 
     animationCleanup();
 
+    if (playerState.gameState === GameStates.Welcome) {
+      if (!playerState.gameMode) return;
+
+      if (playerState.gameMode === GameModes.Rogue) {
+        setPlayerState((prev) => ({
+          ...prev,
+          gameState: GameStates.Home,
+        }));
+      } else {
+        gameStart();
+      }
+    }
+
+    if (playerState.gameState === GameStates.Paused) {
+      setTimeout(() => {
+        gameStart();
+      }, resetGameDelayInSec * 1000);
+      return;
+    }
+
     if (playerState.gameState !== GameStates.InProgress) return;
 
     if (dungeonState.health <= 0) {
@@ -103,8 +126,12 @@ function App() {
     const validRoomCards = getValidRoomCards(dungeonState.roomCards);
 
     if (dungeonState.drawDeck.length === 0 && validRoomCards.length === 0) {
-      // Reach dungeon end
-      dungeonEnd();
+      if (playerState.gameMode === GameModes.Rogue) {
+        // Reach dungeon end
+        dungeonEnd();
+      } else {
+        gameWin();
+      }
     } else if (
       dungeonState.drawDeck.length !== 0 &&
       validRoomCards.length <= 1
@@ -140,16 +167,7 @@ function App() {
       }));
       // ========================= //
     }
-  }, [dungeonState, initialized]);
-
-  const PlusCoins = () => {
-    return (
-      <div className="plus-coins">
-        <span>5</span>
-        <CoinIcon />
-      </div>
-    );
-  };
+  }, [dungeonState, playerState, initialized]);
 
   return (
     <div
@@ -159,7 +177,6 @@ function App() {
       {/* Image Preloader */}
       <ImagePreloader />
 
-      {/* Modals */}
       <ModalEmbeds
         openModal={openModal}
         dungeonState={dungeonState}
@@ -167,35 +184,26 @@ function App() {
         setOpenModal={setOpenModal}
         playerState={playerState}
         setPlayerState={setPlayerState}
-        gameStart={gameStart}
         dungeonContinue={dungeonContinue}
         dungeonExit={dungeonExit}
         openInventory={openInventory}
       />
 
-      {/* Blood */}
-      {playerState.gameState === GameStates.Home &&
-        playerState.lastGameWon === false && <Blood />}
-
-      {playerState.gameState === GameStates.Home &&
-        playerState.lastGameWon === true && (
-          <div className="confetti">
-            <Confetti
-              mode="boom"
-              y={0.35}
-              particleCount={80}
-              colors={["#b43733", "#da8037", "#52a3c4", "#8956b9", "#4ea069"]}
-            />
-          </div>
-        )}
+      {/* Toasts */}
+      {dungeonToasts}
 
       <div className="main">
-        <Header setOpenModal={setOpenModal} />
+        <Header setOpenModal={setOpenModal} playerState={playerState} />
 
         <div className="main__body">
           {/* Welcome */}
           {playerState.gameState === GameStates.Welcome && (
-            <Welcome setPlayerState={setPlayerState} />
+            <Welcome
+              setOpenModal={setOpenModal}
+              playerState={playerState}
+              setPlayerState={setPlayerState}
+              setDungeonState={setDungeonState}
+            />
           )}
 
           {/* Home */}
@@ -209,19 +217,22 @@ function App() {
           )}
 
           {/* Dungeon */}
-          {playerState.gameState === GameStates.InProgress && (
+          {(playerState.gameState === GameStates.InProgress ||
+            playerState.gameState === GameStates.Paused) && (
             <>
               <HealthBar dungeonState={dungeonState} />
 
               <div className="deck-and-weapons">
                 <WeaponsBox dungeonState={dungeonState} />
                 <DrawDeck
+                  playerState={playerState}
                   dungeonState={dungeonState}
                   setOpenModal={setOpenModal}
                 />
               </div>
 
               <RoomBar
+                gameStart={gameStart}
                 dungeonState={dungeonState}
                 playerState={playerState}
                 setDungeonState={setDungeonState}

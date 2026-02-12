@@ -6,13 +6,22 @@ import {
   type PlayerState,
 } from "../../utils/types";
 import type { Dispatch, SetStateAction } from "react";
-import { HowToPlay } from "../misc/HowToPlay";
+import { GameModesToggle } from "../misc/GameModesToggle";
+import { Modals, type ModalType } from "../modals/ModalEmbeds";
 
 interface WelcomeProps {
+  setOpenModal: (modal: ModalType) => void;
+  playerState: PlayerState;
   setPlayerState: Dispatch<SetStateAction<PlayerState>>;
+  setDungeonState: Dispatch<SetStateAction<DungeonState>>;
 }
 
-export const Welcome = ({ setPlayerState }: WelcomeProps) => {
+export const Welcome = ({
+  setOpenModal,
+  playerState,
+  setPlayerState,
+  setDungeonState,
+}: WelcomeProps) => {
   return (
     <div className="welcome">
       <div className="welcome__title">
@@ -25,24 +34,22 @@ export const Welcome = ({ setPlayerState }: WelcomeProps) => {
         </span>
       </div>
 
-      <div className="welcome__how-to-play">
-        <div className="welcome__how-to-play__shadow" />
-        <div className="welcome__how-to-play__text">
-          <HowToPlay />
-        </div>
-      </div>
-
       <button
-        className="plain-btn red-btn large-btn"
+        className="plain-btn red-btn"
         onClick={() => {
-          setPlayerState((prev) => ({
-            ...prev,
-            gameState: GameStates.Home,
-          }));
+          setOpenModal(Modals.HowToPlay);
         }}
       >
-        Start
+        How to play
       </button>
+
+      <GameModesToggle
+        initialSelection={true}
+        onModeSelect={() => {}}
+        playerState={playerState}
+        setPlayerState={setPlayerState}
+        setDungeonState={setDungeonState}
+      />
     </div>
   );
 };

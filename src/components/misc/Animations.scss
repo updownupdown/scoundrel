@@ -1,0 +1,66 @@
+.animations {
+  pointer-events: none;
+  position: fixed;
+  z-index: 40;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  .animation-item {
+    position: absolute;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    gap: 4px;
+    margin: -30px 0 0 -30px;
+
+    svg {
+      width: 28px;
+      height: 28px;
+      fill: var(--white);
+    }
+
+    span {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    &--coins {
+      svg {
+        fill: var(--gold);
+      }
+      span {
+        color: var(--gold);
+      }
+    }
+    &--heal {
+      svg {
+        fill: var(--green);
+      }
+      span {
+        color: var(--green);
+      }
+    }
+    &--damage {
+      svg {
+        fill: var(--red);
+      }
+      span {
+        color: var(--red);
+      }
+    }
+    &--xp {
+      svg {
+        fill: var(--white);
+      }
+      span {
+        color: var(--white);
+      }
+    }
+  }
+}

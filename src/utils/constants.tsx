@@ -1,4 +1,4 @@
-export const currentVersion = 1;
+export const currentVersion = 2;
 
 export const maxHealth = 20;
 export const maxCardValue = 14;

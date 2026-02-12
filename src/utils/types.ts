@@ -6,11 +6,20 @@ import { HomeIcon } from "../components/icons/Home";
 import { ShopIcon } from "../components/icons/Shop";
 import { CharacterIcon } from "../components/icons/Character";
 
+export const GameModes = {
+  Classic: "Classic",
+  Mercy: "Mercy",
+  Rogue: "Rogue",
+};
+
+export type GameMode = (typeof GameModes)[keyof typeof GameModes];
+
 export const GameStates = {
   Welcome: "Welcome",
   Home: "Home",
   DungeonEnd: "DungeonEnd",
   InProgress: "In Progress",
+  Paused: "Paused",
 } as const;
 
 export type GameState = (typeof GameStates)[keyof typeof GameStates];
@@ -106,10 +115,10 @@ export const defaultDungeonState: DungeonState = {
 };
 
 export type PlayerState = {
+  gameMode?: GameMode;
   gameState: GameState;
   gamesLost: number;
   gamesWon: number;
-  lastGameWon?: boolean;
   avgLastRoom?: number;
   avgLastRoomAcrossDungeons?: number;
   avgLastDungeon?: number;
@@ -121,7 +130,6 @@ export const defaultPlayerState: PlayerState = {
   gameState: GameStates.Welcome,
   gamesLost: 0,
   gamesWon: 0,
-  lastGameWon: undefined,
   avgLastRoom: undefined,
   avgLastRoomAcrossDungeons: undefined,
   avgLastDungeon: undefined,

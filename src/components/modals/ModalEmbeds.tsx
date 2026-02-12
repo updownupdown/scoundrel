@@ -10,6 +10,7 @@ import { StatsModal } from "./StatsModal";
 import { DungeonEndModal } from "./DungeonEndModal";
 import { InventoryModal } from "./InventoryModal";
 import { HowToPlayModal } from "./HowToPlayModal";
+import { GameModesModal } from "./GameModesModal";
 
 export const Modals = {
   HowToPlay: "How to Play",
@@ -18,7 +19,7 @@ export const Modals = {
   Deck: "Deck",
   DungeonEnd: "Dungeon End",
   Inventory: "Inventory",
-  Home: "Home",
+  ToggleGameMode: "Toggle Game Mode",
 } as const;
 
 export type ModalType = (typeof Modals)[keyof typeof Modals];
@@ -32,7 +33,6 @@ interface ModalEmbedsProps {
   setOpenModal: (modal: ModalType | undefined) => void;
   dungeonExit: () => void;
   dungeonContinue: () => void;
-  gameStart: () => void;
   openInventory: () => void;
 }
 
@@ -71,6 +71,17 @@ export const ModalEmbeds = ({
           onClose={() => {
             setOpenModal(undefined);
           }}
+        />
+      )}
+
+      {openModal === Modals.ToggleGameMode && (
+        <GameModesModal
+          onClose={() => {
+            setOpenModal(undefined);
+          }}
+          playerState={playerState}
+          setPlayerState={setPlayerState}
+          setDungeonState={setDungeonState}
         />
       )}
 

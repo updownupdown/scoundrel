@@ -1,9 +1,16 @@
-import type { Dispatch, SetStateAction } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type Dispatch,
+  type SetStateAction,
+} from "react";
 import { Modals, type ModalType } from "../components/modals/ModalEmbeds";
 import {
   CardTypes,
   defaultDungeonState,
   defaultInventory,
+  GameModes,
   GameStates,
   ItemTypes,
   type DungeonState,
@@ -16,6 +23,8 @@ import {
   parseCard,
 } from "./utils";
 import { roomsTotal } from "./constants";
+import { Toast } from "../components/misc/Toast";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface DungeonProps {
   dungeonState: DungeonState;
@@ -25,6 +34,9 @@ interface DungeonProps {
   setOpenModal: (modaol: ModalType | undefined) => void;
 }
 
+export const toastDurationInSec = 5;
+export const resetGameDelayInSec = 2;
+
 export const useDungeon = ({
   dungeonState,
   setDungeonState,
@@ -32,6 +44,62 @@ export const useDungeon = ({
   setPlayerState,
   setOpenModal,
 }: DungeonProps) => {
+  const [toasts, setToasts] = useState<{ id: number; type: string }[]>([]);
+
+  function triggerToast({ type }: { type: string }) {
+    const id = Date.now();
+
+    setToasts((prev) => [...prev, { id, type }]);
+
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((item) => item.id !== id));
+    }, toastDurationInSec * 1000);
+  }
+
+  const dungeonToasts = useMemo(() => {
+    return (
+      <div className="toasts-wrap">
+        <AnimatePresence key="toasts">
+          {toasts.map((t) => {
+            return (
+              <Toast key={t.id} type={t.type}>
+                {t.type === "won" && (
+                  <>
+                    {/* <Confetti
+                        mode="boom"
+                        y={0.35}
+                        particleCount={80}
+                        colors={["#b43733", "#da8037", "#52a3c4", "#8956b9", "#4ea069"]}
+                        /> */}
+
+                    <h2>You made it!</h2>
+                    <div className="toast__stats">
+                      <span>Dungeon: {dungeonState.currentDungeon}</span>
+                      <span>Score: {dungeonState.score}</span>
+                    </div>
+                  </>
+                )}
+
+                {t.type === "lost" && (
+                  <>
+                    {/* <Blood /> */}
+
+                    <h2>You died!</h2>
+                    <div className="toast__stats">
+                      <span>Dungeon: {dungeonState.currentDungeon}</span>
+                      <span>Room: {dungeonState.currentRoom}</span>
+                      <span>Score: {dungeonState.score}</span>
+                    </div>
+                  </>
+                )}
+              </Toast>
+            );
+          })}
+        </AnimatePresence>
+      </div>
+    );
+  }, [toasts]);
+
   // Get stats
   function getLastRoomStats() {
     return {
@@ -55,6 +123,8 @@ export const useDungeon = ({
 
   // Game START
   function gameStart() {
+    // console.log("gameSTART");
+
     setDungeonState({
       ...defaultDungeonState,
       drawDeck: getSafeShuffledDeck(),
@@ -68,12 +138,13 @@ export const useDungeon = ({
     setPlayerState((prev) => ({
       ...prev,
       gameState: GameStates.InProgress,
-      lastGameWon: undefined,
     }));
   }
 
   // Game LOSE
   function gameLose() {
+    // console.log("gameLose");
+
     const remainingCards = getValidRoomCards([
       ...dungeonState.drawDeck,
       ...dungeonState.roomCards,
@@ -102,16 +173,46 @@ export const useDungeon = ({
       avgLastRoom,
       avgLastDungeon,
       avgLastRoomAcrossDungeons,
-      gameState: GameStates.Home,
+      gameState:
+        playerState.gameMode === GameModes.Rogue
+          ? GameStates.Home
+          : GameStates.Paused,
       inventoryPack: defaultInventory,
-      lastGameWon: false,
     }));
 
-    setOpenModal(Modals.Home);
+    triggerToast({ type: "lost" });
+  }
+
+  // Game - WIN
+  function gameWin() {
+    // console.log("gameWin");
+
+    const { avgLastRoom, avgLastDungeon, avgLastRoomAcrossDungeons } =
+      getLastRoomStats();
+
+    // setDungeonState((prev) => ({
+    //   ...prev,
+    //   isRunning: false,
+    //   usedPotionInRoom: false,
+    //   currentDungeon: 1,
+    // }));
+
+    setPlayerState((prev) => ({
+      ...prev,
+      gamesWon: playerState.gamesWon + 1,
+      avgLastRoom,
+      avgLastDungeon,
+      avgLastRoomAcrossDungeons,
+      gameState: GameStates.Paused,
+    }));
+
+    triggerToast({ type: "won" });
   }
 
   // Dungeon - REACH END
   function dungeonEnd() {
+    // console.log("dungeonEnd");
+
     const goldFound = dungeonState.currentDungeon;
 
     setDungeonState((prev) => ({
@@ -132,6 +233,8 @@ export const useDungeon = ({
 
   // Dungeon - CONTINUE
   function dungeonContinue() {
+    // console.log("dungeonContinue");
+
     setDungeonState({
       ...defaultDungeonState,
       drawDeck: getSafeShuffledDeck(),
@@ -150,14 +253,13 @@ export const useDungeon = ({
 
   // Dungeon - EXIT
   function dungeonExit() {
+    // console.log("dungeonExit");
+
     const { avgLastRoom, avgLastDungeon, avgLastRoomAcrossDungeons } =
       getLastRoomStats();
 
     setDungeonState((prev) => ({
       ...prev,
-      // ...defaultDungeonState,
-      // drawDeck: getSafeShuffledDeck(),
-      // score: dungeonState.score + dungeonState.health + dungeonState.bonusScore,
       isRunning: false,
       usedPotionInRoom: false,
       currentDungeon: 1,
@@ -170,10 +272,9 @@ export const useDungeon = ({
       avgLastDungeon,
       avgLastRoomAcrossDungeons,
       gameState: GameStates.Home,
-      lastGameWon: true,
     }));
 
-    setOpenModal(undefined);
+    triggerToast({ type: "won" });
   }
 
   function openInventory() {
@@ -181,6 +282,8 @@ export const useDungeon = ({
   }
 
   return {
+    dungeonToasts: dungeonToasts,
+    gameWin,
     gameStart,
     gameLose,
     dungeonEnd,

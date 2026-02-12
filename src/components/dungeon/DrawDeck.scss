@@ -61,4 +61,8 @@
       border: 1px solid rgba(var(--K950-rgb), 0.6);
     }
   }
+
+  &:disabled {
+    cursor: not-allowed;
+  }
 }

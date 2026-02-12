@@ -175,36 +175,6 @@ export const Home = ({
 
   return (
     <div className="home">
-      {playerState.lastGameWon !== undefined && (
-        <div
-          className={clsx(
-            "home__results",
-            playerState.lastGameWon === true && "home__results--won",
-            playerState.lastGameWon === false && "home__results--lost",
-          )}
-        >
-          {playerState.lastGameWon === true && (
-            <>
-              <h2>You made it out!</h2>
-              <div className="home__results__stats">
-                <span>Dungeon: {dungeonState.currentDungeon}</span>
-                <span>Score: {dungeonState.score}</span>
-              </div>
-            </>
-          )}
-          {playerState.lastGameWon === false && (
-            <>
-              <h2>You died!</h2>
-              <div className="home__results__stats">
-                <span>Dungeon: {dungeonState.currentDungeon}</span>
-                <span>Room: {dungeonState.currentRoom}</span>
-                <span>Score: {dungeonState.score}</span>
-              </div>
-            </>
-          )}
-        </div>
-      )}
-
       <div className="home__tabs-content">
         <div className="home__tabs-content__tabs">
           {Object.values(HomeTabs).map((tab) => {

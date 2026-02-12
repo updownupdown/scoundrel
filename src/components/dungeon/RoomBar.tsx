@@ -1,5 +1,6 @@
 import "./HealthBar.scss";
 import {
+  GameModes,
   GameStates,
   type DungeonState,
   type PlayerState,
@@ -12,12 +13,14 @@ import { BackpackIcon } from "../icons/Backpack";
 
 interface RoomBarProps {
   openInventory: () => void;
+  gameStart: () => void;
   dungeonState: DungeonState;
   setDungeonState: Dispatch<SetStateAction<DungeonState>>;
   playerState: PlayerState;
 }
 
 export const RoomBar = ({
+  gameStart,
   openInventory,
   dungeonState,
   playerState,
@@ -52,19 +55,32 @@ export const RoomBar = ({
 
   return (
     <div className="rooms">
-      <button
-        className="plain-btn transparent-btn"
-        onClick={() => openInventory()}
-      >
-        <BackpackIcon />
-      </button>
+      {playerState.gameMode === GameModes.Rogue && (
+        <button
+          className="plain-btn transparent-btn backpack-btn"
+          onClick={() => openInventory()}
+        >
+          <BackpackIcon />
+        </button>
+      )}
+      {playerState.gameMode === GameModes.Mercy && (
+        <button
+          className="plain-btn transparent-btn"
+          onClick={gameStart}
+          disabled={playerState.gameState === GameStates.Paused}
+        >
+          Reset
+        </button>
+      )}
 
       <div className="rooms__center">
         <div className="rooms__center__count">
-          <span>
-            <span className="pale">Dungeon</span>
-            {dungeonState.currentDungeon}
-          </span>
+          {playerState.gameMode === GameModes.Rogue && (
+            <span>
+              <span className="pale">Dungeon</span>
+              {dungeonState.currentDungeon}
+            </span>
+          )}
           <span>
             <span className="pale">Room</span>
             {dungeonState.currentRoom ?? 1}

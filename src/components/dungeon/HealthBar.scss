@@ -113,7 +113,7 @@
     }
   }
 
-  &__playerState {
+  &__bar {
     transition: 0.5s ease all;
 
     position: absolute;
@@ -152,7 +152,7 @@
   }
 
   @mixin bar-color($name, $color) {
-    &--#{$name} .health-bar__playerState {
+    &--#{$name} .health-bar__bar {
       background: var(--#{$color});
       box-shadow:
         0 1px 6px rgba(var(--#{$color}-rgb), 0.4),

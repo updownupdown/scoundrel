@@ -34,7 +34,7 @@ export const StatsModal = ({
             setResetPressesLeft(resetPressesLeft - 1);
           } else {
             setResetPressesLeft(resetPressRequired);
-            setPlayerState(defaultPlayerState);
+            // setPlayerState(defaultPlayerState);
           }
         }}
       >

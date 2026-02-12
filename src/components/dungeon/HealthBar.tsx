@@ -22,9 +22,9 @@ export const HealthBar = ({ dungeonState }: HealthBarProps) => {
     >
       <div className="health-bar__icon">{<HeartIcon />}</div>
       <div
-        className="health-bar__playerState"
+        className="health-bar__bar"
         style={{
-          width: `${((dungeonState.health + 3) / (maxHealth + 3)) * 100}%`,
+          width: `${Math.min(((dungeonState.health + 3) / (maxHealth + 3)) * 100, 100)}%`,
         }}
       />
       <span className="health-bar__text">

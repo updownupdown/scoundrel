@@ -5,12 +5,14 @@ import { MenuIcon } from "../icons/Menu";
 import { Modals, type ModalType } from "../modals/ModalEmbeds";
 import clsx from "clsx";
 import { CloseIcon } from "../icons/Close";
+import type { PlayerState } from "../../utils/types";
 
 interface HeaderProps {
   setOpenModal: (modal: ModalType) => void;
+  playerState: PlayerState;
 }
 
-export const Header = ({ setOpenModal }: HeaderProps) => {
+export const Header = ({ setOpenModal, playerState }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isMenuOpenRef = useRef(isMenuOpen);
   isMenuOpenRef.current = isMenuOpen;
@@ -42,7 +44,9 @@ export const Header = ({ setOpenModal }: HeaderProps) => {
       <div className="header__title">
         <D20Icon />
         <span className="header__title__scoundrel">Scoundrel</span>
-        <span className="header__title__mode">Rogue</span>
+        {playerState.gameMode && (
+          <span className="header__title__mode">{playerState.gameMode}</span>
+        )}
       </div>
 
       <div ref={menuWrapRef} className="menu-wrap">
@@ -71,6 +75,17 @@ export const Header = ({ setOpenModal }: HeaderProps) => {
             >
               <span>Close</span>
               <CloseIcon />
+            </button>
+
+            <button
+              className="menu-item-btn"
+              type="button"
+              onClick={() => {
+                setIsMenuOpen(false);
+                setOpenModal(Modals.ToggleGameMode);
+              }}
+            >
+              Select Mode
             </button>
 
             <button

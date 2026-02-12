@@ -1,6 +1,7 @@
 import "./HealthBar.scss";
 import {
   CardTypes,
+  GameModes,
   GameStates,
   ItemTypes,
   type DungeonState,
@@ -14,7 +15,8 @@ import {
 import { ActionButton } from "./ActionButton";
 import { parseCard } from "../../utils/utils";
 import { animateCard } from "../../utils/animations";
-import type { Dispatch, SetStateAction } from "react";
+import { type Dispatch, type SetStateAction } from "react";
+import { useAnimations } from "../misc/Animations";
 
 interface HealthBarProps {
   dungeonState: DungeonState;
@@ -33,6 +35,8 @@ export const Actions = ({
   isAnimating,
   setIsAnimating,
 }: HealthBarProps) => {
+  const { animationsWrap, triggerAnimation } = useAnimations();
+
   // Info
   const lowestWeaponCard = () => {
     const lastWeaponCard =
@@ -64,18 +68,19 @@ export const Actions = ({
   }
 
   // Heal
+  const doublePotionsCanHeal =
+    playerState.gameMode === GameModes.Mercy || !dungeonState.usedPotionInRoom;
+
   async function doHeal(card: string) {
-    setIsAnimating(true);
-
-    await animateCard(card, "potion");
-
     const { cardValue } = parseCard(card);
 
     let newHealth = dungeonState.health;
+    let healValue = 0;
     let bonusScore = 0;
 
-    if (!dungeonState.usedPotionInRoom) {
-      newHealth = Math.min(dungeonState.health + cardValue, maxHealth);
+    if (doublePotionsCanHeal) {
+      healValue = Math.min(maxHealth - dungeonState.health, cardValue);
+      newHealth = dungeonState.health + healValue;
 
       if (
         dungeonState.drawDeck.length === 0 &&
@@ -85,6 +90,10 @@ export const Actions = ({
         bonusScore = cardValue;
       }
     }
+
+    setIsAnimating(true);
+
+    await animateCard(card, "potion");
 
     setDungeonState((prev) => ({
       ...prev,
@@ -131,10 +140,6 @@ export const Actions = ({
 
   // Fight with weapon
   async function doFightWeapon(card: string) {
-    setIsAnimating(true);
-
-    await animateCard(card, "weapon-monster");
-
     const { cardValue: monsterValue } = parseCard(card);
 
     if (!dungeonState.weapon) return;
@@ -146,6 +151,10 @@ export const Actions = ({
     let health = dungeonState.health - damage;
     if (health < 0) health = 0;
 
+    setIsAnimating(true);
+
+    await animateCard(card, "weapon-monster");
+
     setDungeonState((prev) => ({
       ...prev,
       health,
@@ -156,12 +165,24 @@ export const Actions = ({
     }));
 
     // Get coin for slaying a dragon
-    if (monsterValue === maxCardValue) {
+    if (
+      playerState.gameMode === GameModes.Rogue &&
+      monsterValue !== maxCardValue
+    ) {
+      const coinsNum = 1;
+
+      triggerAnimation({
+        type: "coins",
+        qty: coinsNum,
+        targetClass: "backpack-btn",
+      });
+
       setPlayerState((prev) => ({
         ...prev,
         inventoryPack: {
           ...playerState.inventoryPack,
-          [ItemTypes.Coin]: playerState.inventoryPack[ItemTypes.Coin] + 1,
+          [ItemTypes.Coin]:
+            playerState.inventoryPack[ItemTypes.Coin] + coinsNum,
         },
       }));
     }
@@ -171,14 +192,14 @@ export const Actions = ({
 
   // Fight barefisted
   async function doFightBarefist(card: string) {
-    setIsAnimating(true);
-
-    await animateCard(card, "barefist");
-
     const { cardValue } = parseCard(card);
 
     let health = dungeonState.health - cardValue;
     if (health < 0) health = 0;
+
+    setIsAnimating(true);
+
+    await animateCard(card, "barefist");
 
     setDungeonState((prev) => ({
       ...prev,
@@ -193,9 +214,16 @@ export const Actions = ({
     setIsAnimating(false);
   }
 
+  const showActions =
+    playerState.gameState === GameStates.InProgress ||
+    playerState.gameState === GameStates.Paused;
+  const isPaused = playerState.gameState === GameStates.Paused;
+
   return (
     <div className="actions">
-      {playerState.gameState === GameStates.InProgress &&
+      {animationsWrap}
+
+      {showActions &&
         dungeonState.roomCards.map((card, index) => {
           const { cardType, cardValue } = parseCard(card);
 
@@ -207,13 +235,14 @@ export const Actions = ({
                     <ActionButton
                       type="heal"
                       extraClasses={
-                        dungeonState.usedPotionInRoom
+                        !doublePotionsCanHeal
                           ? ["action-btn--heal-no-effect"]
                           : undefined
                       }
-                      value={`+${dungeonState.usedPotionInRoom ? 0 : cardValue}`}
+                      value={`+${doublePotionsCanHeal ? cardValue : 0}`}
                       onClick={() => doHeal(card)}
                       isAnimating={isAnimating}
+                      isAvailable={!isPaused}
                     />
                   )}
 
@@ -222,6 +251,7 @@ export const Actions = ({
                       type="equip"
                       onClick={() => doEquip(card)}
                       isAnimating={isAnimating}
+                      isAvailable={!isPaused}
                     />
                   )}
 
@@ -235,7 +265,7 @@ export const Actions = ({
                             : "--"
                         }
                         onClick={() => doFightWeapon(card)}
-                        isAvailable={canUseWeapon(cardValue)}
+                        isAvailable={canUseWeapon(cardValue) && !isPaused}
                         isAnimating={isAnimating}
                         showSkull={
                           canUseWeapon(cardValue) &&
@@ -249,6 +279,7 @@ export const Actions = ({
                         onClick={() => doFightBarefist(card)}
                         isAnimating={isAnimating}
                         showSkull={cardValue >= dungeonState.health}
+                        isAvailable={!isPaused}
                       />
                     </>
                   )}
