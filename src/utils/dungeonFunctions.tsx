@@ -25,6 +25,8 @@ import {
 import { roomsTotal } from "./constants";
 import { Toast } from "../components/misc/Toast";
 import { AnimatePresence, motion } from "framer-motion";
+import Confetti from "react-confetti-boom";
+import { Blood } from "../components/misc/Blood";
 
 interface DungeonProps {
   dungeonState: DungeonState;
@@ -65,16 +67,11 @@ export const useDungeon = ({
               <Toast key={t.id} type={t.type}>
                 {t.type === "won" && (
                   <>
-                    {/* <Confetti
-                        mode="boom"
-                        y={0.35}
-                        particleCount={80}
-                        colors={["#b43733", "#da8037", "#52a3c4", "#8956b9", "#4ea069"]}
-                        /> */}
-
                     <h2>You made it!</h2>
                     <div className="toast__stats">
-                      <span>Dungeon: {dungeonState.currentDungeon}</span>
+                      {playerState.gameMode === GameModes.Rogue && (
+                        <span>Dungeon: {dungeonState.currentDungeon}</span>
+                      )}
                       <span>Score: {dungeonState.score}</span>
                     </div>
                   </>
@@ -82,11 +79,11 @@ export const useDungeon = ({
 
                 {t.type === "lost" && (
                   <>
-                    {/* <Blood /> */}
-
                     <h2>You died!</h2>
                     <div className="toast__stats">
-                      <span>Dungeon: {dungeonState.currentDungeon}</span>
+                      {playerState.gameMode === GameModes.Rogue && (
+                        <span>Dungeon: {dungeonState.currentDungeon}</span>
+                      )}
                       <span>Room: {dungeonState.currentRoom}</span>
                       <span>Score: {dungeonState.score}</span>
                     </div>

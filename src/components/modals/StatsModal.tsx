@@ -22,26 +22,28 @@ export const StatsModal = ({
 
   return (
     <Modal title="Stats" isOpen onClose={onClose}>
-      <Stats playerState={playerState} />
+      <div className="stats-content">
+        <Stats playerState={playerState} />
 
-      <button
-        className={clsx(
-          "plain-btn",
-          resetPressesLeft < resetPressRequired && "red-btn",
-        )}
-        onClick={() => {
-          if (resetPressesLeft > 1) {
-            setResetPressesLeft(resetPressesLeft - 1);
-          } else {
-            setResetPressesLeft(resetPressRequired);
-            // setPlayerState(defaultPlayerState);
-          }
-        }}
-      >
-        {resetPressesLeft < resetPressRequired
-          ? `Press ${resetPressesLeft} more time${resetPressesLeft > 1 ? "s" : ""} to reset...`
-          : "Reset stats"}
-      </button>
+        <button
+          className={clsx(
+            "plain-btn",
+            resetPressesLeft < resetPressRequired && "red-btn",
+          )}
+          onClick={() => {
+            if (resetPressesLeft > 1) {
+              setResetPressesLeft(resetPressesLeft - 1);
+            } else {
+              setResetPressesLeft(resetPressRequired);
+              setPlayerState(defaultPlayerState);
+            }
+          }}
+        >
+          {resetPressesLeft < resetPressRequired
+            ? `Press ${resetPressesLeft} more time${resetPressesLeft > 1 ? "s" : ""} to reset...`
+            : "Reset stats"}
+        </button>
+      </div>
     </Modal>
   );
 };

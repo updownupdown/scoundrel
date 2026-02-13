@@ -167,7 +167,7 @@ export const Actions = ({
     // Get coin for slaying a dragon
     if (
       playerState.gameMode === GameModes.Rogue &&
-      monsterValue !== maxCardValue
+      monsterValue === maxCardValue
     ) {
       const coinsNum = 1;
 

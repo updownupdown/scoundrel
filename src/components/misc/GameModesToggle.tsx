@@ -51,6 +51,7 @@ export const GameModesToggle = ({
 
           onModeSelect();
         }}
+        disabled={playerState.gameMode === GameModes.Classic}
       >
         {buttonFirstWord} Classic mode
       </button>
@@ -79,6 +80,7 @@ export const GameModesToggle = ({
 
           onModeSelect();
         }}
+        disabled={playerState.gameMode === GameModes.Mercy}
       >
         {buttonFirstWord} Mercy mode
       </button>
@@ -107,6 +109,7 @@ export const GameModesToggle = ({
 
           onModeSelect();
         }}
+        disabled={playerState.gameMode === GameModes.Rogue}
       >
         {buttonFirstWord} Rogue mode
       </button>
