@@ -271,6 +271,8 @@ export const useDungeon = ({
       gameState: GameStates.Home,
     }));
 
+    setOpenModal(undefined);
+
     triggerToast({ type: "won" });
   }
 
