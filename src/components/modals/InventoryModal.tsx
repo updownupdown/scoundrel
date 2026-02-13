@@ -36,12 +36,12 @@ export const InventoryModal = ({
           playerState.inventoryPack.Potion === 0 ||
           dungeonState.health === maxHealth
         );
+      } else if (type === ItemTypes.Rat) {
+        return (
+          playerState.inventoryPack.Rat === 0 ||
+          dungeonState.health === maxHealth
+        );
       }
-      // else if (type === ItemTypes.Rat) {
-      //   return true;
-      // } else if (type === ItemTypes.Bomb) {
-      //   return true;
-      // }
 
       return true;
     };
@@ -58,6 +58,19 @@ export const InventoryModal = ({
         setDungeonState((prev) => ({
           ...prev,
           health: Math.min(dungeonState.health + 3, maxHealth),
+        }));
+      }
+      if (type === ItemTypes.Rat) {
+        setPlayerState((prev) => ({
+          ...prev,
+          inventoryPack: {
+            ...playerState.inventoryPack,
+            [ItemTypes.Rat]: playerState.inventoryPack.Rat - 1,
+          },
+        }));
+        setDungeonState((prev) => ({
+          ...prev,
+          health: Math.min(dungeonState.health + 1, maxHealth),
         }));
       } else {
         console.log("Use " + type);

@@ -24,10 +24,6 @@ Features:
 
 - Killing dragons sometimes release (potions?) or coins, but you have to press to collect them? Random change, most likely 0, but sometimes 1, rarely 2 or 3.
 
-Rogue
-- When you lose a game, you can choose between three dice rolls, to get three temporary bonuses for the next round. There are safe roles and risky ones, to get small or large bonuses.
-- When you win a game, you get to roll too, but for permanent bonuses (rogue).
-
 XP, gold, store
 - Earn XP by fighting face/ace monsters, stacking weapon decks, etc.
 - Earn XP by clearing dungeons

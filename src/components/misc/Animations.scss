@@ -10,24 +10,28 @@
   .animation-item {
     position: absolute;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 60px;
-    height: 60px;
-    gap: 4px;
-    margin: -30px 0 0 -30px;
+    &--coins,
+    &--rat,
+    &--heal {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 60px;
+      height: 60px;
+      gap: 4px;
+      margin: -30px 0 0 -30px;
 
-    svg {
-      width: 28px;
-      height: 28px;
-      fill: var(--white);
-    }
+      svg {
+        width: 28px;
+        height: 28px;
+        fill: var(--white);
+      }
 
-    span {
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--white);
+      span {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--white);
+      }
     }
 
     &--coins {
@@ -36,6 +40,14 @@
       }
       span {
         color: var(--gold);
+      }
+    }
+    &--rat {
+      svg {
+        fill: var(--beige);
+      }
+      span {
+        color: var(--beige);
       }
     }
     &--heal {

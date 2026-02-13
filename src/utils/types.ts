@@ -5,6 +5,7 @@ import { PotionIcon } from "../components/icons/Potion";
 import { HomeIcon } from "../components/icons/Home";
 import { ShopIcon } from "../components/icons/Shop";
 import { CharacterIcon } from "../components/icons/Character";
+import { RatIcon } from "../components/icons/Rat";
 
 export const GameModes = {
   Classic: "Classic",
@@ -49,7 +50,7 @@ export type CardType = (typeof CardTypes)[keyof typeof CardTypes];
 export const ItemTypes = {
   Coin: "Coin",
   Potion: "Potion",
-  // Rat: "Rat",
+  Rat: "Rat",
   // Bomb: "Bomb",
 } as const;
 
@@ -60,21 +61,21 @@ export type Inventory = Record<ItemType, number>;
 export const ItemCost: Record<ItemType, number | undefined> = {
   [ItemTypes.Coin]: undefined,
   [ItemTypes.Potion]: 5,
-  // [ItemTypes.Rat]: 1,
+  [ItemTypes.Rat]: 2,
   // [ItemTypes.Bomb]: 20,
 };
 
 export const ItemIcon: Record<ItemType, React.ComponentType<any>> = {
   [ItemTypes.Coin]: CoinIcon,
   [ItemTypes.Potion]: PotionIcon,
-  // [ItemTypes.Rat]: RatIcon,
+  [ItemTypes.Rat]: RatIcon,
   // [ItemTypes.Bomb]: BombIcon,
 };
 
 export const defaultInventory: Inventory = {
   [ItemTypes.Coin]: 0,
   [ItemTypes.Potion]: 0,
-  // [ItemTypes.Rat]: 0,
+  [ItemTypes.Rat]: 0,
   // [ItemTypes.Bomb]: 0,
 };
 

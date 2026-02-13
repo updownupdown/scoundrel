@@ -8,15 +8,15 @@ import {
   type PlayerState,
 } from "../../utils/types";
 import {
+  coinsValues,
   emptyCardSymbol,
   maxCardValue,
   maxHealth,
 } from "../../utils/constants";
 import { ActionButton } from "./ActionButton";
 import { parseCard } from "../../utils/utils";
-import { animateCard } from "../../utils/animations";
 import { type Dispatch, type SetStateAction } from "react";
-import { useAnimations } from "../misc/Animations";
+import { actionAnimationDurationSec, useAnimations } from "../misc/Animations";
 
 interface HealthBarProps {
   dungeonState: DungeonState;
@@ -25,6 +25,10 @@ interface HealthBarProps {
   setPlayerState: Dispatch<SetStateAction<PlayerState>>;
   isAnimating: boolean;
   setIsAnimating: (isAnimating: boolean) => void;
+}
+
+function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export const Actions = ({
@@ -67,6 +71,54 @@ export const Actions = ({
     return damage;
   }
 
+  // Trigger coins
+  function triggerCoins(coinsNum: number) {
+    triggerAnimation({
+      type: "coins",
+      qty: coinsNum,
+      targetClass: "backpack-btn",
+      startOffset: { x: 0, y: 0 },
+      endOffset: { x: 0, y: -70 },
+      duration: 2,
+    });
+
+    setPlayerState((prev) => ({
+      ...prev,
+      inventoryPack: {
+        ...playerState.inventoryPack,
+        [ItemTypes.Coin]: playerState.inventoryPack[ItemTypes.Coin] + coinsNum,
+      },
+    }));
+  }
+
+  function triggerRat(cardValue: number) {
+    const maxCardForRat = 10;
+    if (cardValue > maxCardForRat) return;
+
+    const probabilityOfRat =
+      (Math.abs(cardValue - maxCardForRat - 1) / maxCardForRat) * 0.5;
+    const isSuccess = Math.random() < probabilityOfRat;
+
+    if (isSuccess) {
+      triggerAnimation({
+        type: "rat",
+        qty: 1,
+        targetClass: "backpack-btn",
+        startOffset: { x: 0, y: 0 },
+        endOffset: { x: 0, y: -70 },
+        duration: 2,
+      });
+
+      setPlayerState((prev) => ({
+        ...prev,
+        inventoryPack: {
+          ...playerState.inventoryPack,
+          [ItemTypes.Rat]: playerState.inventoryPack[ItemTypes.Rat] + 1,
+        },
+      }));
+    }
+  }
+
   // Heal
   const doublePotionsCanHeal =
     playerState.gameMode === GameModes.Mercy || !dungeonState.usedPotionInRoom;
@@ -93,7 +145,14 @@ export const Actions = ({
 
     setIsAnimating(true);
 
-    await animateCard(card, "potion");
+    triggerAnimation({
+      type: "card",
+      card: card,
+      targetType: "potion",
+      duration: actionAnimationDurationSec,
+    });
+
+    await delay(actionAnimationDurationSec * 1000);
 
     setDungeonState((prev) => ({
       ...prev,
@@ -114,7 +173,14 @@ export const Actions = ({
   async function doEquip(card: string) {
     setIsAnimating(true);
 
-    await animateCard(card, "weapon-equip");
+    triggerAnimation({
+      type: "card",
+      card: card,
+      targetType: "weapon-equip",
+      duration: actionAnimationDurationSec,
+    });
+
+    await delay(actionAnimationDurationSec * 1000);
 
     setDungeonState((prev) => ({
       ...prev,
@@ -140,12 +206,12 @@ export const Actions = ({
 
   // Fight with weapon
   async function doFightWeapon(card: string) {
-    const { cardValue: monsterValue } = parseCard(card);
+    const { cardValue } = parseCard(card);
 
     if (!dungeonState.weapon) return;
     const { cardValue: weaponValue } = parseCard(dungeonState.weapon);
 
-    let damage = monsterValue - weaponValue;
+    let damage = cardValue - weaponValue;
     if (damage < 0) damage = 0;
 
     let health = dungeonState.health - damage;
@@ -153,7 +219,23 @@ export const Actions = ({
 
     setIsAnimating(true);
 
-    await animateCard(card, "weapon-monster");
+    // Get coin for dragons
+    if (playerState.gameMode === GameModes.Rogue) {
+      if (cardValue === maxCardValue) {
+        triggerCoins(coinsValues.killAceWithWeapon);
+      }
+
+      triggerRat(cardValue);
+    }
+
+    triggerAnimation({
+      type: "card",
+      card: card,
+      targetType: "weapon-monster",
+      duration: actionAnimationDurationSec,
+    });
+
+    await delay(actionAnimationDurationSec * 1000);
 
     setDungeonState((prev) => ({
       ...prev,
@@ -163,29 +245,6 @@ export const Actions = ({
       ),
       weaponCards: [...dungeonState.weaponCards, card],
     }));
-
-    // Get coin for slaying a dragon
-    if (
-      playerState.gameMode === GameModes.Rogue &&
-      monsterValue === maxCardValue
-    ) {
-      const coinsNum = 1;
-
-      triggerAnimation({
-        type: "coins",
-        qty: coinsNum,
-        targetClass: "backpack-btn",
-      });
-
-      setPlayerState((prev) => ({
-        ...prev,
-        inventoryPack: {
-          ...playerState.inventoryPack,
-          [ItemTypes.Coin]:
-            playerState.inventoryPack[ItemTypes.Coin] + coinsNum,
-        },
-      }));
-    }
 
     setIsAnimating(false);
   }
@@ -199,7 +258,23 @@ export const Actions = ({
 
     setIsAnimating(true);
 
-    await animateCard(card, "barefist");
+    // Get coin for dragons
+    if (playerState.gameMode === GameModes.Rogue) {
+      if (cardValue === maxCardValue) {
+        triggerCoins(coinsValues.killAceWithFist);
+      }
+
+      triggerRat(cardValue);
+    }
+
+    triggerAnimation({
+      type: "card",
+      card: card,
+      targetType: "barefist",
+      duration: actionAnimationDurationSec,
+    });
+
+    await delay(actionAnimationDurationSec * 1000);
 
     setDungeonState((prev) => ({
       ...prev,

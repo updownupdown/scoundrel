@@ -5,6 +5,11 @@ export const maxCardValue = 14;
 
 export const emptyCardSymbol = "-";
 
+export const coinsValues = {
+  killAceWithWeapon: 2,
+  killAceWithFist: 1,
+} as const;
+
 export const allCards = [
   // Clubs - monsters
   "2C",

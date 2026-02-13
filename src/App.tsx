@@ -14,7 +14,6 @@ import {
   Modals,
   type ModalType,
 } from "./components/modals/ModalEmbeds";
-import { animationCleanup } from "./utils/animations";
 import { HealthBar } from "./components/dungeon/HealthBar";
 import { RoomBar } from "./components/dungeon/RoomBar";
 import { WeaponsBox } from "./components/dungeon/WeaponsBox";
@@ -92,8 +91,6 @@ function App() {
   // DUNGEON state change
   useEffect(() => {
     if (!initialized) return;
-
-    animationCleanup();
 
     if (playerState.gameState === GameStates.Welcome) {
       if (!playerState.gameMode) return;
